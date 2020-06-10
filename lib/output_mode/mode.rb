@@ -25,7 +25,7 @@
 #==============================================================================
 
 module OutputMode
-  Mode = Struct.new(:type, :io) do
+  Mode = Struct.new(:type) do
     # Defines the selection proc when called with a `block`.
     # Returns the previously defined `block` when called without any inputs.
     # Returns a block that returns false when a block has not been
@@ -49,11 +49,46 @@ module OutputMode
     # The `config` will be passed to the `selector` in order to modify the
     # selection based on external inputs.
     #
-    # @param **config [Hash] Calls the `selector` with the config
+    # @param **config [Hash] Calls the `selector` with this hash
     # @return [Boolean] The truthiness of the `selector` result or `false`
     # @see #selector
     def select?(**config)
       selector.call(**config) ? true : false
+    end
+
+    # Define a output proc when called with a block. Returns the previously
+    # defined proc when called without a block. Returns Nil when there is
+    # no previously defined block.
+    #
+    # The block must return the text that will ultimately be outputted to
+    # StandardOut (or other IO). It must not write to the IO directly as
+    # this is handled by the renderer.
+    #
+    # The block will be given a 2D array of data which needs to be rendered.
+    # Each sub-array is intended to be a row of data, however it maybe render
+    # as a column.
+    #
+    # The block will also be provided with a optional config. This config
+    # may contain additional fields to be rendered (e.g. headers, keys, etc.)
+    #
+    # NOTE: This method does not execute the block.
+    # @yield The result will be printed to the output IO
+    # @yieldparam *data [Array<Array>] A 2D array of table data
+    # @yieldparam **config [Hash] Arbitrary key-value pairs
+    def outputer(&block)
+      @outputer = block if block_given?
+      @outputer
+    end
+
+    # Generates a formatted string for the input data.
+    #
+    # The actual outputting is done by the outputer proc. The data must be
+    # a 2D array to be rendered. The config may contain arbitrary pairs.
+    #
+    # @param *data, [Array<Array>] A 2D array of data to be rendered
+    # @param **config [Hash] Arbitrary key value pairs
+    def output(*data, **config)
+      outputer&.call(*data, **config) || ''
     end
   end
 end

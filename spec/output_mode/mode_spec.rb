@@ -25,9 +25,9 @@
 #==============================================================================
 
 RSpec.describe OutputMode::Mode do
-  describe '#select?' do
-    subject { described_class.new(:subject) }
+  subject { described_class.new(:subject) }
 
+  describe '#select?' do
     it 'returns false' do
       expect(subject.select?).to be_falsey
     end
@@ -41,6 +41,22 @@ RSpec.describe OutputMode::Mode do
       it 'can use config values in the block' do
         subject.selector { |**c| c[:key] }
         expect(subject.select?(key: true)).to be true
+      end
+    end
+  end
+
+  describe '#output' do
+    it 'returns empty string by default' do
+      expect(subject.output([])).to eq('')
+    end
+
+    describe '#outputer' do
+      it 'renders the data to a string' do
+        data = [['value1', 'value2'], ['data1', 'data2']]
+        block = ->(d) { d.map { |v| v.join('-') }.join("\n") }
+        str = block.call(data)
+        subject.outputer(&block)
+        expect(subject.output(data)).to eq(str)
       end
     end
   end
