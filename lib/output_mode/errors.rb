@@ -24,7 +24,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require "output_mode/version"
-require 'output_mode/errors'
-require 'output_mode/base_renderer'
+module OutputMode
+  class Error < StandardError; end
+  class UndefinedOutputMode < StandardError; end
+end
 

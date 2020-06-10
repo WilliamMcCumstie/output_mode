@@ -24,7 +24,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require "output_mode/version"
-require 'output_mode/errors'
-require 'output_mode/base_renderer'
+RSpec.describe OutputMode::BaseRenderer do
+  let(:base_class) do
+    Class.new do
+      extend OutputMode::BaseRenderer
+    end
+  end
+
+  describe '::mode?' do
+    it 'returns false if the mode is missing' do
+      expect(base_class.mode?(:missing)).to be_falsey
+    end
+
+    it 'returns true if the mode has been defined' do
+      base_class.define_mode(:demo)
+      expect(base_class.mode?(:demo)).to be_truthy
+    end
+  end
+end
 

@@ -24,7 +24,27 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require "output_mode/version"
-require 'output_mode/errors'
-require 'output_mode/base_renderer'
+module OutputMode
+  module BaseRenderer
+    # Returns `true` if the mode has been defined. Otherwise returns `false`
+    #
+    # @param type [Symbol] the name of the mode
+    def mode?(type)
+      modes.key?(type)
+    end
+
+    # Define a new outputting mode
+    #
+    # @param type [Symbol] the name of the mode
+    def define_mode(type)
+      modes[type] = true
+    end
+
+    private
+
+    def modes
+      @modes ||= {}
+    end
+  end
+end
 
