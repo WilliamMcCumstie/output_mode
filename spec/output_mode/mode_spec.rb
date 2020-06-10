@@ -25,12 +25,22 @@
 #==============================================================================
 
 RSpec.describe OutputMode::Mode do
-  context 'with a blank mode' do
-    subject { described_class.new(:blank) }
+  describe '#select?' do
+    subject { described_class.new(:subject) }
 
-    describe '#select?' do
-      it 'returns false' do
-        expect(subject.select?).to be_falsey
+    it 'returns false' do
+      expect(subject.select?).to be_falsey
+    end
+
+    describe '#selector' do
+      it 'returns true based on the blocks truthiness' do
+        subject.selector { 'some truthy value' }
+        expect(subject.select?).to be true
+      end
+
+      it 'can use config values in the block' do
+        subject.selector { |**c| c[:key] }
+        expect(subject.select?(key: true)).to be true
       end
     end
   end

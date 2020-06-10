@@ -25,14 +25,35 @@
 #==============================================================================
 
 module OutputMode
-  Mode = Struct.new(:type) do
-    # Returns if the mode should be selected by the renderer
-    # NOTE: This does not guarantee it will be selected, only that it maybe
-    # See README.md for further details
+  Mode = Struct.new(:type, :io) do
+    # Defines the selection proc when called with a `block`.
+    # Returns the previously defined `block` when called without any inputs.
+    # Returns a block that returns false when a block has not been
+    # previously set.
     #
-    # @param config [Hash<KeyType, ValueType>] TBA
+    # NOTE: This method does not execute the block. Instead it will be ran by
+    # the `select?` method with the corresponding `config`.
+    #
+    # @yield Determines the truthiness of the select? method
+    # @yieldparam **config [Hash] Arbitrary key-value pairs
+    # @see #select?
+    def selector(&block)
+      @selector = block if block_given?
+      @selector || -> { false }
+    end
+
+    # Returns if the mode should be selected by the renderer. This method will
+    # run the custom selector block and returns the result based on the
+    # truthiness. It will default to `false` if no `selector` is available.
+    #
+    # The `config` will be passed to the `selector` in order to modify the
+    # selection based on external inputs.
+    #
+    # @param **config [Hash] Calls the `selector` with the config
+    # @return [Boolean] The truthiness of the `selector` result or `false`
+    # @see #selector
     def select?(**config)
-      false
+      selector.call(**config) ? true : false
     end
   end
 end
