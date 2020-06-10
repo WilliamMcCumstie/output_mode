@@ -24,28 +24,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-module OutputMode
-  module BaseRenderer
-    # Returns `true` if the mode has been defined. Otherwise returns `false`
-    #
-    # @param type [Symbol] the name of the mode
-    def mode?(type)
-      modes.key?(type)
-    end
+RSpec.describe OutputMode::Mode do
+  context 'with a blank mode' do
+    subject { described_class.new(:blank) }
 
-    # Define a new outputting mode
-    #
-    # @param type [Symbol] the name of the mode
-    # @return [OutputMode::Mode] the newly defined mode
-    def define_mode(type)
-      modes[type] = Mode.new(type)
-    end
-
-    # Returns the defined modes
-    #
-    # @return [Hash<Symbol, OutputMode::Mode>] a hash of types to modes
-    def modes
-      @modes ||= {}
+    describe '#select?' do
+      it 'returns false' do
+        expect(subject.select?).to be_falsey
+      end
     end
   end
 end

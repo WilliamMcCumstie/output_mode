@@ -26,5 +26,6 @@
 
 require "output_mode/version"
 require 'output_mode/errors'
+require 'output_mode/mode'
 require 'output_mode/base_renderer'
 

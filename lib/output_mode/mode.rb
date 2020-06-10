@@ -25,27 +25,14 @@
 #==============================================================================
 
 module OutputMode
-  module BaseRenderer
-    # Returns `true` if the mode has been defined. Otherwise returns `false`
+  Mode = Struct.new(:type) do
+    # Returns if the mode should be selected by the renderer
+    # NOTE: This does not guarantee it will be selected, only that it maybe
+    # See README.md for further details
     #
-    # @param type [Symbol] the name of the mode
-    def mode?(type)
-      modes.key?(type)
-    end
-
-    # Define a new outputting mode
-    #
-    # @param type [Symbol] the name of the mode
-    # @return [OutputMode::Mode] the newly defined mode
-    def define_mode(type)
-      modes[type] = Mode.new(type)
-    end
-
-    # Returns the defined modes
-    #
-    # @return [Hash<Symbol, OutputMode::Mode>] a hash of types to modes
-    def modes
-      @modes ||= {}
+    # @param config [Hash<KeyType, ValueType>] TBA
+    def select?(**config)
+      false
     end
   end
 end
