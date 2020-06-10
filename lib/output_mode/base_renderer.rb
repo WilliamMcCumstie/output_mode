@@ -30,7 +30,7 @@ module OutputMode
     #
     # @param type [Symbol] the name of the mode
     def mode?(type)
-      modes.key?(type)
+      modes.find { |m| m.type == type }
     end
 
     # Define a new outputting mode
@@ -38,14 +38,14 @@ module OutputMode
     # @param type [Symbol] the name of the mode
     # @return [OutputMode::Mode] the newly defined mode
     def define_mode(type)
-      modes[type] = Mode.new(type)
+      modes << Mode.new(type)
     end
 
     # Returns the defined modes
     #
-    # @return [Hash<Symbol, OutputMode::Mode>] a hash of types to modes
+    # @return [Array<OutputMode::Mode>] a hash of types to modes
     def modes
-      @modes ||= {}
+      @modes ||= []
     end
   end
 end
