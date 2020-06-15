@@ -75,5 +75,21 @@ RSpec.describe OutputMode::Outputs::Tabulated do
         TABLE
       end
     end
+
+    context 'with render options' do
+      let(:opts) { { alignments: ['right', 'left', 'right'] } }
+
+      subject { described_class.new(*procs, opts: opts) }
+
+      it 'applies the options' do
+        expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+          ┌──────┬──────┬───────┬┬┐
+          │ first│tsrif │ignored│││
+          │second│dnoces│ignored│││
+          │ third│driht │ignored│││
+          └──────┴──────┴───────┴┴┘
+        TABLE
+      end
+    end
   end
 end

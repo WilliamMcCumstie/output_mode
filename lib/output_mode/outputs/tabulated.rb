@@ -31,28 +31,32 @@ module OutputMode
       #   @return [Array] An optional header row for the table
       # @!attribute [r] renderer
       #   @return [Symbol] select a renderer, see: https://github.com/piotrmurach/tty-table#32-renderer
-      # @!attribute [r] render_opts
+      # @!attribute [r] opts
       #   @return [Hash] additional options to TTY:Table renderer, see: https://github.com/piotrmurach/tty-table#33-options
-      attr_reader :header, :renderer, :render_opts
+      attr_reader :header, :renderer, :opts
 
       # @overload initialize(*procs, **config)
       #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
       #   @option config [Array<String>] :header the header row of the table
       #   @option config [Symbol] :renderer override the default +unicode+ renderer
-      #   @option config [Hash] :render_opts additional options to the renderer
+      #   @option config [Hash] :opts additional options to the renderer
       def initialize(*procs, **config)
         super
         @header = config[:header]
         @renderer =  config.fetch(:renderer, :unicode)
-        @render_opts = config.fetch(:render_opts, {})
+        @opts = config.fetch(:opts, {})
       end
 
+      # renders the +data+ against the preconfigured {procs #procs}
+      #
+      # @param *data [Array] the initial set of data/models
+      # @return [String] the results from the procs rendered into a table
       def render(*data)
         table = TTY::Table.new header: header
         data.each do |datum|
           table << procs.map { |p| p.call(datum) }
         end
-        table.render(renderer) || ''
+        table.render(renderer, **opts) || ''
       end
     end
   end
