@@ -79,7 +79,7 @@ RSpec.describe OutputMode::Outputs::Tabulated do
     context 'with render options' do
       let(:opts) { { alignments: ['right', 'left', 'right'] } }
 
-      subject { described_class.new(*procs, opts: opts) }
+      subject { described_class.new(*procs, **opts) }
 
       it 'applies the options' do
         expect(subject.render(*data)).to eq(<<~TABLE.chomp)

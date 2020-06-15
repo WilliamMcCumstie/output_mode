@@ -30,21 +30,21 @@ module OutputMode
       # @!attribute [r] header
       #   @return [Array] An optional header row for the table
       # @!attribute [r] renderer
-      #   @return [Symbol] select a renderer, see: https://github.com/piotrmurach/tty-table#32-renderer
-      # @!attribute [r] opts
-      #   @return [Hash] additional options to TTY:Table renderer, see: https://github.com/piotrmurach/tty-table#33-options
+      #   @return [Symbol] the renderer type, see: https://github.com/piotrmurach/tty-table#32-renderer
       attr_reader :header, :renderer, :opts
 
-      # @overload initialize(*procs, **config)
-      #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
-      #   @option config [Array<String>] :header the header row of the table
-      #   @option config [Symbol] :renderer override the default +unicode+ renderer
-      #   @option config [Hash] :opts additional options to the renderer
-      def initialize(*procs, **config)
-        super
-        @header = config[:header]
-        @renderer =  config.fetch(:renderer, :unicode)
-        @opts = config.fetch(:opts, {})
+      # @return [Hash] additional options to TTY:Table renderer
+      # @see https://github.com/piotrmurach/tty-table#33-options
+      def config; super; end
+
+      # @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
+      # @param [Array<String>] :header the header row of the table
+      # @param [Symbol] :renderer override the default renderer
+      # @param [Hash] **config additional options to the renderer
+      def initialize(*procs, renderer: :unicode, header: nil, **config)
+        @header = header
+        @renderer =  renderer
+        super(*procs, config)
       end
 
       # renders the +data+ against the preconfigured {procs #procs}
@@ -56,7 +56,7 @@ module OutputMode
         data.each do |datum|
           table << procs.map { |p| p.call(datum) }
         end
-        table.render(renderer, **opts) || ''
+        table.render(renderer, **config) || ''
       end
     end
   end
