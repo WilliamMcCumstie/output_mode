@@ -24,34 +24,32 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-lib = File.expand_path("lib", __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "output_mode/version"
+module OutputMode
+  module Outputs
+    class Tabulated < Base
+      # @!attribute [r] headers
+      #   @return [Array] An optional header row of the table
+      # @!attribute [r] renderer
+      #   @return [Symbol] select a renderer, see: https://github.com/piotrmurach/tty-table#32-renderer
+      # @!attribute [r] render_opts
+      #   @return [Hash] additional options to TTY:Table renderer, see: https://github.com/piotrmurach/tty-table#33-options
+      attr_reader :headers
+      attr_reader :renderer
 
-Gem::Specification.new do |spec|
-  spec.name          = "output_mode"
-  spec.version       = OutputMode::VERSION
-  spec.authors       = ["William McCumsite"]
-  spec.email         = ["openlicense.williams@gmail.com"]
+      # @overload initialize(*procs, **config)
+      #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
+      #   @option config [Array<String>] :header the header row of the table
+      def initialize(*procs, **config)
+        super
+        @headers = config[:headers]
+        @renderer =  config.fetch(:renderer, :unicode)
+        @render_opts = config.fetch(:render_opts, {})
+      end
 
-  spec.summary       = %q{Toggle human and machine readable outputs}
-  spec.homepage      = "https://github.com/WilliamMcCumstie/output_mode"
-
-  spec.metadata["homepage_uri"] = spec.homepage
-
-  # Specify which files should be added to the gem when it is released.
-  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
-  spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+      def render
+        ''
+      end
+    end
   end
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
-
-  spec.add_runtime_dependency 'tty-table', '~> 0.11'
-
-  spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency "pry", "> 0.11"
 end
+

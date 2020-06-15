@@ -24,34 +24,41 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-lib = File.expand_path("lib", __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "output_mode/version"
+module OutputMode
+  module Outputs
+    # @abstract Defines the public interface to all subclasses
+    #
+    # Base outputting class that wraps an array of procs or other
+    # callable object. Each implementation must override the {#render} method
+    # so it returns an array.
+    class Base
+      # @!attribute [r] procs
+      #   @return [Array<#call>] the callable methods to generate output
+      # @!attribute [r] config
+      #   @return [Hash] additional key-values to modify the render
+      attr_reader :procs, :config
 
-Gem::Specification.new do |spec|
-  spec.name          = "output_mode"
-  spec.version       = OutputMode::VERSION
-  spec.authors       = ["William McCumsite"]
-  spec.email         = ["openlicense.williams@gmail.com"]
+      # Creates a new outputting instance from an array of procs
+      #
+      # @param *procs [Array<#call>] an array of procs (or callable objects)
+      # @param **config [Hash] a hash of additional keys to be stored
+      def initialize(*procs, **config)
+        @procs = procs
+        @config = config
+      end
 
-  spec.summary       = %q{Toggle human and machine readable outputs}
-  spec.homepage      = "https://github.com/WilliamMcCumstie/output_mode"
-
-  spec.metadata["homepage_uri"] = spec.homepage
-
-  # Specify which files should be added to the gem when it is released.
-  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
-  spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+      # @abstract It must be implemented by the subclass
+      # Renders the results of the procs into a string. Each data
+      # objects should be passed individual to each proc to generate the final
+      # output.
+      #
+      # The method must be overridden on all inherited classes
+      #
+      # @param *data [Array] a set of data to be rendered into the output
+      # @return [String] the output string
+      def render(*data)
+        raise NotImplementedError
+      end
+    end
   end
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
-
-  spec.add_runtime_dependency 'tty-table', '~> 0.11'
-
-  spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency "pry", "> 0.11"
 end

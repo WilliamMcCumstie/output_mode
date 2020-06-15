@@ -24,34 +24,28 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-lib = File.expand_path("lib", __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "output_mode/version"
-
-Gem::Specification.new do |spec|
-  spec.name          = "output_mode"
-  spec.version       = OutputMode::VERSION
-  spec.authors       = ["William McCumsite"]
-  spec.email         = ["openlicense.williams@gmail.com"]
-
-  spec.summary       = %q{Toggle human and machine readable outputs}
-  spec.homepage      = "https://github.com/WilliamMcCumstie/output_mode"
-
-  spec.metadata["homepage_uri"] = spec.homepage
-
-  # Specify which files should be added to the gem when it is released.
-  # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
-  spec.files         = Dir.chdir(File.expand_path('..', __FILE__)) do
-    `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
+RSpec.describe OutputMode::Outputs::Tabulated do
+  let(:base_headers) do
+    ['stringify', 'reverse', 'ignore', 'nill', 'empty-string']
   end
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency 'tty-table', '~> 0.11'
+  let(:base_procs) do
+    [
+      ->(v) { v.to_s },
+      ->(v) { v.to_s.reverse },
+      ->(_) { 'ignored' },
+      ->(_) { nil },
+      ->(_) { '' }
+    ]
+  end
 
-  spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "rspec", "~> 3.0"
-  spec.add_development_dependency "pry", "> 0.11"
+  context 'without any data nor headers' do
+    subject { described_class.new(*base_procs).render }
+
+    describe '#render' do
+      it 'returns empty string' do
+        expect(subject).to eq('')
+      end
+    end
+  end
 end

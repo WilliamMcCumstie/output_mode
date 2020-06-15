@@ -24,6 +24,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
+require 'tty-table'
+
 require "output_mode/version"
 require 'output_mode/errors'
+
+require 'output_mode/outputs/base'
+require 'output_mode/outputs/tabulated'
 
