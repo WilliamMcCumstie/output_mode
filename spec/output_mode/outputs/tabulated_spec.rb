@@ -25,11 +25,7 @@
 #==============================================================================
 
 RSpec.describe OutputMode::Outputs::Tabulated do
-  let(:base_headers) do
-    ['stringify', 'reverse', 'ignore', 'nill', 'empty-string']
-  end
-
-  let(:base_procs) do
+  let(:procs) do
     [
       ->(v) { v.to_s },
       ->(v) { v.to_s.reverse },
@@ -39,12 +35,44 @@ RSpec.describe OutputMode::Outputs::Tabulated do
     ]
   end
 
-  context 'without any data nor headers' do
-    subject { described_class.new(*base_procs).render }
+  let(:data) { ['first', 'second', 'third'] }
 
-    describe '#render' do
-      it 'returns empty string' do
-        expect(subject).to eq('')
+  subject { described_class.new(*procs) }
+
+  describe '#render' do
+    it 'returns empty string' do
+      expect(subject.render).to eq('')
+    end
+
+    context 'with basic data' do
+      it 'returns the rendered data' do
+        expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+          ┌──────┬──────┬───────┬┬┐
+          │first │tsrif │ignored│││
+          │second│dnoces│ignored│││
+          │third │driht │ignored│││
+          └──────┴──────┴───────┴┴┘
+        TABLE
+      end
+    end
+
+    context 'with headers' do
+      let(:header) do
+        ['stringify', 'reverse', 'ignore', 'nill', 'empty-string']
+      end
+
+      subject { described_class.new(*procs, header: header) }
+
+      it 'returns the headers' do
+        expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+          ┌─────────┬───────┬───────┬────┬────────────┐
+          │stringify│reverse│ignore │nill│empty-string│
+          ├─────────┼───────┼───────┼────┼────────────┤
+          │first    │tsrif  │ignored│    │            │
+          │second   │dnoces │ignored│    │            │
+          │third    │driht  │ignored│    │            │
+          └─────────┴───────┴───────┴────┴────────────┘
+        TABLE
       end
     end
   end

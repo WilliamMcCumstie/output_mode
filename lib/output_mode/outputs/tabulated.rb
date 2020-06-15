@@ -27,27 +27,32 @@
 module OutputMode
   module Outputs
     class Tabulated < Base
-      # @!attribute [r] headers
-      #   @return [Array] An optional header row of the table
+      # @!attribute [r] header
+      #   @return [Array] An optional header row for the table
       # @!attribute [r] renderer
       #   @return [Symbol] select a renderer, see: https://github.com/piotrmurach/tty-table#32-renderer
       # @!attribute [r] render_opts
       #   @return [Hash] additional options to TTY:Table renderer, see: https://github.com/piotrmurach/tty-table#33-options
-      attr_reader :headers
-      attr_reader :renderer
+      attr_reader :header, :renderer, :render_opts
 
       # @overload initialize(*procs, **config)
       #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
       #   @option config [Array<String>] :header the header row of the table
+      #   @option config [Symbol] :renderer override the default +unicode+ renderer
+      #   @option config [Hash] :render_opts additional options to the renderer
       def initialize(*procs, **config)
         super
-        @headers = config[:headers]
+        @header = config[:header]
         @renderer =  config.fetch(:renderer, :unicode)
         @render_opts = config.fetch(:render_opts, {})
       end
 
-      def render
-        ''
+      def render(*data)
+        table = TTY::Table.new header: header
+        data.each do |datum|
+          table << procs.map { |p| p.call(datum) }
+        end
+        table.render(renderer) || ''
       end
     end
   end
