@@ -110,5 +110,16 @@ RSpec.describe OutputMode::Outputs::Tabulated do
         TABLE
       end
     end
+
+    context 'with a string default' do
+      subject do
+        described_class.new(*procs, default: '(none)')
+      end
+
+      it 'replaces nil and empty string' do
+        expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+        TABLE
+      end
+    end
   end
 end
