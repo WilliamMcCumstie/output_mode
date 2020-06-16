@@ -154,5 +154,21 @@ RSpec.describe OutputMode::Outputs::Tabulated do
         TABLE
       end
     end
+
+    context 'with yes/no flags' do
+      subject do
+        described_class.new(*procs_with_bools, yes: 'Yes', no: ['Array-No'])
+      end
+
+      it 'replaces true/false with either a static or column based value' do
+        expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+          ┌──────┬──────┬───────┬┬┬───┬────────┐
+          │first │tsrif │ignored│││Yes│Array-No│
+          │second│dnoces│ignored│││Yes│Array-No│
+          │third │driht │ignored│││Yes│Array-No│
+          └──────┴──────┴───────┴┴┴───┴────────┘
+        TABLE
+      end
+    end
   end
 end
