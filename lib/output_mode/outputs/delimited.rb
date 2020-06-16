@@ -37,7 +37,7 @@ module OutputMode
       # @see CSV
       def render(*data)
         io = StringIO.new
-        csv = CSV.new(io)
+        csv = CSV.new(io, **config)
         data.each do |datum|
           csv << procs.map { |p| p.call(datum) }
         end

@@ -37,11 +37,6 @@ RSpec.describe OutputMode::Outputs::Delimited do
     ]
   end
 
-  let(:procs_with_bools) do
-    procs.dup.tap do |p|
-    end
-  end
-
   let(:data) { ['first', 'second', 'third'] }
 
   subject { described_class.new(*procs) }
@@ -52,7 +47,7 @@ RSpec.describe OutputMode::Outputs::Delimited do
     end
 
     context 'with basic data' do
-      subject { described_class.new(*procs_with_bools) }
+      subject { described_class.new(*procs) }
 
       it 'returns the rendered data' do
         expect(subject.render(*data)).to eq(<<~TABLE)
@@ -60,6 +55,29 @@ RSpec.describe OutputMode::Outputs::Delimited do
           second,dnoces,ignored,,"",true,false
           third,driht,ignored,,"",true,false
         TABLE
+      end
+    end
+
+    context 'with a custom separator' do
+      let(:col_sep) { '*' }
+      let(:row_sep) { "\r" }
+
+      let(:custom_data) { ['demo', col_sep, row_sep] }
+
+      subject do
+        described_class.new(*procs, col_sep: col_sep, row_sep: row_sep)
+      end
+
+      it 'passes the options through' do
+        expect(subject.render(*custom_data)).to eq([
+          'demo*omed*ignored**""*true*false',
+          '"*"*"*"*ignored**""*true*false',
+          # The " are literal characters within the heredoc
+          <<~RENDERED_ROW_SEP.chomp,
+            "\r"*"\r"*ignored**""*true*false
+          RENDERED_ROW_SEP
+          '' # Ends with additional row_sep
+        ].join("\r"))
       end
     end
   end
