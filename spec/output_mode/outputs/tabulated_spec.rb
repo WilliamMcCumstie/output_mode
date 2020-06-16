@@ -118,6 +118,30 @@ RSpec.describe OutputMode::Outputs::Tabulated do
 
       it 'replaces nil and empty string' do
         expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+          ┌──────┬──────┬───────┬──────┬──────┐
+          │first │tsrif │ignored│(none)│(none)│
+          │second│dnoces│ignored│(none)│(none)│
+          │third │driht │ignored│(none)│(none)│
+          └──────┴──────┴───────┴──────┴──────┘
+        TABLE
+      end
+    end
+
+    context 'with an array default' do
+      let(:expanded_procs) { procs.dup.tap { |p| p << ->(_) {} } }
+      let(:defaults) { ['skip', 'skip', 'skip', 'nil-column', 'repeat-column'] }
+
+      subject do
+        described_class.new(*expanded_procs, default: defaults)
+      end
+
+      it 'replaces on a per column basis with a repeat' do
+        expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+          ┌──────┬──────┬───────┬──────────┬─────────────┬─────────────┐
+          │first │tsrif │ignored│nil-column│repeat-column│repeat-column│
+          │second│dnoces│ignored│nil-column│repeat-column│repeat-column│
+          │third │driht │ignored│nil-column│repeat-column│repeat-column│
+          └──────┴──────┴───────┴──────────┴─────────────┴─────────────┘
         TABLE
       end
     end
