@@ -91,5 +91,24 @@ RSpec.describe OutputMode::Outputs::Tabulated do
         TABLE
       end
     end
+
+    context 'with a render block' do
+      subject do
+        described_class.new(*procs) do |renderer|
+          renderer.border.separator = [0, 2]
+        end
+      end
+
+      it 'applies the block to the renderer' do
+        expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+          ┌──────┬──────┬───────┬┬┐
+          │first │tsrif │ignored│││
+          ├──────┼──────┼───────┼┼┤
+          │second│dnoces│ignored│││
+          │third │driht │ignored│││
+          └──────┴──────┴───────┴┴┘
+        TABLE
+      end
+    end
   end
 end

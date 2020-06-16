@@ -27,24 +27,29 @@
 module OutputMode
   module Outputs
     class Tabulated < Base
+      attr_reader :header, :renderer, :block
+
       # @!attribute [r] header
       #   @return [Array] An optional header row for the table
       # @!attribute [r] renderer
       #   @return [Symbol] the renderer type, see: https://github.com/piotrmurach/tty-table#32-renderer
-      attr_reader :header, :renderer, :opts
+      # @!attribute [r] block
+      #   @return [#call] an optional block of code that configures the renderer
 
       # @return [Hash] additional options to TTY:Table renderer
       # @see https://github.com/piotrmurach/tty-table#33-options
       def config; super; end
 
       # @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
-      # @param [Array<String>] :header the header row of the table
       # @param [Symbol] :renderer override the default renderer
+      # @param [Array<String>] :header the header row of the table
       # @param [Hash] **config additional options to the renderer
-      def initialize(*procs, renderer: :unicode, header: nil, **config)
+      # @yieldparam tty_table_renderer [TTY::Table::Renderer::Base] optional access the underlining TTY::Table renderer
+      def initialize(*procs, renderer: :unicode, header: nil, **config, &block)
         @header = header
         @renderer =  renderer
-        super(*procs, config)
+        @block = block
+        super(*procs, **config)
       end
 
       # renders the +data+ against the preconfigured {procs #procs}
@@ -56,7 +61,7 @@ module OutputMode
         data.each do |datum|
           table << procs.map { |p| p.call(datum) }
         end
-        table.render(renderer, **config) || ''
+        table.render(renderer, **config, &block) || ''
       end
     end
   end
