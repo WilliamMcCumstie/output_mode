@@ -42,7 +42,7 @@ module OutputMode
       # @!attribute [r] block
       #   @return [#call] an optional block of code that configures the renderer
 
-      # @return [Hash] additional options to TTY:Table renderer
+      # @return [Hash] additional options to +TTY::Table+ renderer
       # @see https://github.com/piotrmurach/tty-table#33-options
       def config; super; end
 
@@ -75,10 +75,9 @@ module OutputMode
         super(*procs, **config)
       end
 
-      # renders the +data+ against the preconfigured {procs #procs}
-      #
-      # @param *data [Array] the initial set of data/models
-      # @return [String] the results from the procs rendered into a table
+      # Implements the render method using +TTY::Table+
+      # @see OutputMode::Outputs::Base#render
+      # @see https://github.com/piotrmurach/tty-table
       def render(*data)
         table = TTY::Table.new header: header
         data.each do |datum|

@@ -24,14 +24,26 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'csv'
-require 'stringio'
-require 'tty-table'
+module OutputMode
+  module Outputs
+    class Delimited < Base
+      # @return [Hash] additional options to CSV.new
+      # @see https://github.com/piotrmurach/tty-table#33-options
+      def config; super; end
 
-require "output_mode/version"
-require 'output_mode/errors'
-
-require 'output_mode/outputs/base'
-require 'output_mode/outputs/tabulated'
-require 'output_mode/outputs/delimited'
+      # Implements the render method using +CSV+
+      #
+      # @see OutputMode::Outputs::Base#render
+      # @see CSV
+      def render(*data)
+        io = StringIO.new
+        csv = CSV.new(io)
+        data.each do |datum|
+          csv << procs.map { |p| p.call(datum) }
+        end
+        io.tap(&:rewind).read
+      end
+    end
+  end
+end
 

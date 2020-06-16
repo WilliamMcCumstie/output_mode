@@ -24,14 +24,43 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'csv'
-require 'stringio'
-require 'tty-table'
+RSpec.describe OutputMode::Outputs::Delimited do
+  let(:procs) do
+    [
+      ->(v) { v.to_s },
+      ->(v) { v.to_s.reverse },
+      ->(_) { 'ignored' },
+      ->(_) { nil },
+      ->(_) { '' },
+      ->(_) { true },
+      ->(_) { false }
+    ]
+  end
 
-require "output_mode/version"
-require 'output_mode/errors'
+  let(:procs_with_bools) do
+    procs.dup.tap do |p|
+    end
+  end
 
-require 'output_mode/outputs/base'
-require 'output_mode/outputs/tabulated'
-require 'output_mode/outputs/delimited'
+  let(:data) { ['first', 'second', 'third'] }
 
+  subject { described_class.new(*procs) }
+
+  describe '#render' do
+    it 'returns empty string' do
+      expect(subject.render).to eq('')
+    end
+
+    context 'with basic data' do
+      subject { described_class.new(*procs_with_bools) }
+
+      it 'returns the rendered data' do
+        expect(subject.render(*data)).to eq(<<~TABLE)
+          first,tsrif,ignored,,"",true,false
+          second,dnoces,ignored,,"",true,false
+          third,driht,ignored,,"",true,false
+        TABLE
+      end
+    end
+  end
+end
