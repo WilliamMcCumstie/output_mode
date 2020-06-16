@@ -35,6 +35,13 @@ RSpec.describe OutputMode::Outputs::Tabulated do
     ]
   end
 
+  let(:procs_with_bools) do
+    procs.dup.tap do |p|
+      p << ->(_) { true }
+      p << ->(_) { false }
+    end
+  end
+
   let(:data) { ['first', 'second', 'third'] }
 
   subject { described_class.new(*procs) }
@@ -45,13 +52,15 @@ RSpec.describe OutputMode::Outputs::Tabulated do
     end
 
     context 'with basic data' do
+    subject { described_class.new(*procs_with_bools) }
+
       it 'returns the rendered data' do
         expect(subject.render(*data)).to eq(<<~TABLE.chomp)
-          ┌──────┬──────┬───────┬┬┐
-          │first │tsrif │ignored│││
-          │second│dnoces│ignored│││
-          │third │driht │ignored│││
-          └──────┴──────┴───────┴┴┘
+          ┌──────┬──────┬───────┬┬┬────┬─────┐
+          │first │tsrif │ignored│││true│false│
+          │second│dnoces│ignored│││true│false│
+          │third │driht │ignored│││true│false│
+          └──────┴──────┴───────┴┴┴────┴─────┘
         TABLE
       end
     end
