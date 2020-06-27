@@ -45,7 +45,7 @@ module OutputMode
         def each
           output.procs.each_with_index do |proc, idx|
             value = proc.call(model)
-            field = output.index_selector(output.fields, idx)
+            field = output.index_selector(:fields, idx)
             yield(value, field: field)
           end
         end

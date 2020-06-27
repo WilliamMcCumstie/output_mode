@@ -84,11 +84,11 @@ module OutputMode
           table << procs.each_with_index.map do |callable, idx|
             value = callable.call(datum)
             if [nil, ''].include? value
-              index_selector(default, idx)
+              index_selector(:default, idx)
             elsif value == true
-              index_selector(yes || 'true', idx)
+              index_selector(:yes, idx) || 'true'
             elsif value == false
-              index_selector(no || 'false', idx)
+              index_selector(:no, idx) || 'false'
             else
               value
             end
