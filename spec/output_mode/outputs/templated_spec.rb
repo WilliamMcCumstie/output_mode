@@ -24,16 +24,58 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'csv'
-require 'erb'
-require 'stringio'
-require 'tty-table'
+RSpec.describe OutputMode::Outputs::Templated do
+  let(:procs) do
+    [
+      ->(v) { v.to_s },
+      ->(v) { v.to_s.reverse },
+      ->(_) { 'ignored' },
+      ->(_) { nil },
+      ->(_) { '' },
+      ->(_) { true },
+      ->(_) { false }
+    ]
+  end
 
-require "output_mode/version"
-require 'output_mode/errors'
+  let(:data) { ['first', 'second', 'third'] }
 
-require 'output_mode/outputs/base'
-require 'output_mode/outputs/tabulated'
-require 'output_mode/outputs/delimited'
-require 'output_mode/outputs/templated'
+  subject { described_class.new(*procs) }
 
+  describe '#render' do
+    it 'returns empty string' do
+      expect(subject.render).to eq('')
+    end
+
+    context 'with basic data' do
+      subject { described_class.new(*procs) }
+
+      it 'returns the rendered data' do
+        expect(subject.render(*data)).to eq(<<~TABLE)
+          \s* first
+           * tsrif
+           * ignored
+           * 
+           * 
+           * true
+           * false
+
+           * second
+           * dnoces
+           * ignored
+           * 
+           * 
+           * true
+           * false
+
+           * third
+           * driht
+           * ignored
+           * 
+           * 
+           * true
+           * false
+        TABLE
+      end
+    end
+  end
+end

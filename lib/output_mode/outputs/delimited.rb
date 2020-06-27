@@ -28,7 +28,7 @@ module OutputMode
   module Outputs
     class Delimited < Base
       # @return [Hash] additional options to CSV.new
-      # @see https://github.com/piotrmurach/tty-table#33-options
+      # @see https://ruby-doc.org/stdlib-2.6.1/libdoc/csv/rdoc/CSV.html
       def config; super; end
 
       # Implements the render method using +CSV+

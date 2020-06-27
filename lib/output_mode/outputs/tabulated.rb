@@ -46,16 +46,16 @@ module OutputMode
       # @see https://github.com/piotrmurach/tty-table#33-options
       def config; super; end
 
-      # @overload initialize(*procs, renderer: nil, header: nil, default: nil, **config)
+      # @overload initialize(*procs, renderer: nil, header: nil, default: nil, yes: nil, no: nil, **config)
       #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
       #   @param [Symbol] :renderer override the default renderer
       #   @param [Array<String>] :header the header row of the table
-      #   @param :default [String] replaces _blanks_ with a static string
-      #   @param :default [Array] replace _blanks_ on a per column basis. The last value is repeated if the +procs+ are longer.
-      #   @param :yes [String] replaces +true+ with a static string
-      #   @param :yes [Array] replaces +true+ on a per column basis. The last value is repeated if the +procs+ are longer.
-      #   @param :no [String] replaces +false+ with a static string
-      #   @param :no [Array] replaces +false+ on a per column basis. The last value is repeated if the +procs+ are longer.
+      #   @param default: [String] replaces _blanks_ with a static string
+      #   @param default: [Array] replace _blanks_ on a per column basis. The last value is repeated if the +procs+ are longer.
+      #   @param yes: [String] replaces +true+ with a static string
+      #   @param yes: [Array] replaces +true+ on a per column basis. The last value is repeated if the +procs+ are longer.
+      #   @param no: [String] replaces +false+ with a static string
+      #   @param no: [Array] replaces +false+ on a per column basis. The last value is repeated if the +procs+ are longer.
       #   @param [Hash] **config additional options to the renderer
       #   @yieldparam tty_table_renderer [TTY::Table::Renderer::Base] optional access the underlining TTY::Table renderer
       def initialize(*procs,
@@ -95,19 +95,6 @@ module OutputMode
           end
         end
         table.render(renderer, **config, &block) || ''
-      end
-
-      private
-
-      def index_selector(source, index)
-        is_array = source.is_a? Array
-        if is_array && source.length > index
-          source[index]
-        elsif is_array
-          source.last
-        else
-          source
-        end
       end
     end
   end

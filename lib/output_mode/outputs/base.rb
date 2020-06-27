@@ -59,6 +59,24 @@ module OutputMode
       def render(*data)
         raise NotImplementedError
       end
+
+      # A method for selecting an element from an array or static value
+      # @overload index_selector(array_source, valid_index)
+      #   @return the array's value at the index
+      # @overload index_selector(array_source, index_larger_than_source)
+      #   @return the last value of the array
+      # @overload index_selector(non_array_source, _)
+      #   @return the non_array_source
+      def index_selector(source, index)
+        is_array = source.is_a? Array
+        if is_array && source.length > index
+          source[index]
+        elsif is_array
+          source.last
+        else
+          source
+        end
+      end
     end
   end
 end
