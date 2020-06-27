@@ -52,7 +52,7 @@ RSpec.describe OutputMode::Outputs::Templated do
           \s* first
            * tsrif
            * ignored
-           * 
+
            * 
            * true
            * false
@@ -60,7 +60,7 @@ RSpec.describe OutputMode::Outputs::Templated do
            * second
            * dnoces
            * ignored
-           * 
+
            * 
            * true
            * false
@@ -68,7 +68,7 @@ RSpec.describe OutputMode::Outputs::Templated do
            * third
            * driht
            * ignored
-           * 
+
            * 
            * true
            * false
@@ -91,7 +91,7 @@ RSpec.describe OutputMode::Outputs::Templated do
          * first
          * tsrif
          * ignored
-         * 
+
          * 
          * true
          * false
@@ -99,7 +99,7 @@ RSpec.describe OutputMode::Outputs::Templated do
          * second
          * dnoces
          * ignored
-         * 
+
          * 
          * true
          * false
@@ -107,7 +107,7 @@ RSpec.describe OutputMode::Outputs::Templated do
          * third
          * driht
          * ignored
-         * 
+
          * 
          * true
          * false
@@ -117,12 +117,12 @@ RSpec.describe OutputMode::Outputs::Templated do
   end
 
   context 'with fields' do
+    # Intentionally includes a list attribute
     let(:fields) do
-      all = procs.each_with_index.map { |_, i| "field#{i}" }
-      # Intentionally repeat the last field
-      all.pop
-      all.pop
-      all.tap { |a| a << 'field-repeated' }
+      (0..(procs.length - 4)).map { |i| "field#{i}" }.tap do |f|
+        f.unshift(nil)
+        f << 'repeated'
+      end
     end
 
     subject do
@@ -131,29 +131,29 @@ RSpec.describe OutputMode::Outputs::Templated do
 
     it 'uses the field output' do
       expect(subject.render(*data)).to eq(<<~RENDERED)
-                field0: first
-                field1: tsrif
-                field2: ignored
-                field3: 
-                field4: 
-        field-repeated: true
-        field-repeated: false
+         * first
+          field0: tsrif
+          field1: ignored
+          field2: 
+          field3: 
+        repeated: true
+        repeated: false
 
-                field0: second
-                field1: dnoces
-                field2: ignored
-                field3: 
-                field4: 
-        field-repeated: true
-        field-repeated: false
+         * second
+          field0: dnoces
+          field1: ignored
+          field2: 
+          field3: 
+        repeated: true
+        repeated: false
 
-                field0: third
-                field1: driht
-                field2: ignored
-                field3: 
-                field4: 
-        field-repeated: true
-        field-repeated: false
+         * third
+          field0: driht
+          field1: ignored
+          field2: 
+          field3: 
+        repeated: true
+        repeated: false
       RENDERED
     end
   end

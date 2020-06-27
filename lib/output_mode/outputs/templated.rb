@@ -29,7 +29,9 @@ module OutputMode
     class Templated < Base
       DEFAULT_ERB = ERB.new(<<~TEMPLATE, nil, '-')
         <% each do |value, field:, padding:, **_| -%>
-        <%   if field.nil? -%>
+        <%   if value.nil? && field.nil? -%>
+
+        <%   elsif field.nil? -%>
          * <%= value %>
         <%   else -%>
         <%= padding -%><%= field -%>: <%= value %>
