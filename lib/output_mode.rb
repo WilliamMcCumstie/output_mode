@@ -27,8 +27,5 @@
 require "output_mode/version"
 require 'output_mode/errors'
 
-require 'output_mode/outputs/base'
-require 'output_mode/outputs/tabulated'
-require 'output_mode/outputs/delimited'
-require 'output_mode/outputs/templated'
+require 'output_mode/outputs'
 

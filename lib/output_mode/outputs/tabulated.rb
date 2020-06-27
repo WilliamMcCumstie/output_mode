@@ -28,7 +28,7 @@ require 'tty-table'
 
 module OutputMode
   module Outputs
-    class Tabulated < Base
+    class Tabulated < Output
       attr_reader :renderer, :header, :default, :block, :yes, :no
 
       # @!attribute [r] renderer

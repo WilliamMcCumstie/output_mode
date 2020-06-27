@@ -24,25 +24,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'csv'
+require 'output_mode/output'
 
 module OutputMode
   module Outputs
-    class Delimited < Output
-      # @return [Hash] additional options to CSV.new
-      # @see https://ruby-doc.org/stdlib-2.6.1/libdoc/csv/rdoc/CSV.html
-      def config; super; end
-
-      # Implements the render method using +CSV+
-      #
-      # @see OutputMode::Output#render
-      # @see CSV
-      def render(*data)
-        io = StringIO.new
-        csv = CSV.new(io, **config)
-        data.each { |d| csv << generate(d) }
-        io.tap(&:rewind).read
-      end
+    Dir.glob(File.expand_path('outputs/*.rb', __dir__)).each do |path|
+      autoload File.basename(path).chomp('.rb').capitalize, path
     end
   end
 end

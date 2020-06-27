@@ -29,7 +29,7 @@ require 'pastel'
 
 module OutputMode
   module Outputs
-    class Templated < Base
+    class Templated < Output
       DEFAULT_ERB = ERB.new(<<~TEMPLATE, nil, '-')
         <% each do |value, field:, padding:, **_| -%>
         <%   if value.nil? && field.nil? -%>
@@ -95,14 +95,14 @@ module OutputMode
       # @see DEFAULT_ERB
       #
       # @overload initialize(*procs, template: nil, fields: nil, seperator: "\n", yes: 'true', no: 'false', **config)
-      #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
+      #   @param [Array] *procs see {OutputMode::Output#initialize}
       #   @param [String] template: A string to be converted into +ERB+
       #   @param [ERB] template: The +template+ object used by the renderer
       #   @param [Array] fields: An optional array of field headers that map to the procs, repeating the last value if required
       #   @param fields: A static value to use as all field headers
       #   @param separator: The character(s) used to join the "entries" together
       #   @param colorize: Flags if the caller wants the colorized version, this maybe ignored by +template+
-      #   @param [Hash] **config see {OutputMode::Outputs::Base#initialize}
+      #   @param [Hash] **config see {OutputMode::Output#initialize}
       def initialize(*procs,
                      template: nil,
                      fields: nil,
@@ -120,7 +120,7 @@ module OutputMode
       # be rendered within the context of an +Entry+. An +Entry+ object will be
       # created/ rendered for each element of +data+
       #
-      # @see OutputMode::Outputs::Base#render
+      # @see OutputMode::Output#render
       def render(*data)
         data.map { |d| Entry.new(self, d, colorize).render(erb) }
             .join(separator)
