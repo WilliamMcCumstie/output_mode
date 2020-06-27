@@ -28,11 +28,11 @@ module OutputMode
   module Outputs
     class Templated < Base
       DEFAULT_ERB = ERB.new(<<~TEMPLATE, nil, '-')
-        <% each do |value, field:| -%>
+        <% each do |value, field:, padding:, **_| -%>
         <%   if field.nil? -%>
          * <%= value %>
         <%   else -%>
-         * <%= field -%>: <%= value %>
+        <%= padding -%><%= field -%>: <%= value %>
         <%   end -%>
         <% end -%>
       TEMPLATE
@@ -42,10 +42,14 @@ module OutputMode
 
         # @yieldparam value An attribute to be rendered
         # @yieldparam field: An optional field header for the value
+        # @yieldparam padding: A padding string which will right align the +field+
+        # @yieldparam **config TBA
         def each
+          max = output.max_field_length
           output.generate(model).each_with_index do |value, idx|
             field = output.index_selector(:fields, idx)
-            yield(value, field: field)
+            padding = ' ' * (max - field.to_s.length)
+            yield(value, field: field, padding: padding)
           end
         end
 
@@ -104,6 +108,15 @@ module OutputMode
       def render(*data)
         data.map { |d| Entry.new(self, d).render(erb) }
             .join(separator)
+      end
+
+      # Returns the length of the maximum field
+      def max_field_length
+        if fields.is_a? Array
+          fields.map { |f| f.to_s.length }.max
+        else
+          fields.to_s.length
+        end
       end
     end
   end

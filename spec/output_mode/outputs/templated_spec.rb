@@ -47,8 +47,6 @@ RSpec.describe OutputMode::Outputs::Templated do
     end
 
     context 'with basic data' do
-      subject { described_class.new(*procs) }
-
       it 'returns the rendered data' do
         expect(subject.render(*data)).to eq(<<~RENDERED)
           \s* first
@@ -115,6 +113,48 @@ RSpec.describe OutputMode::Outputs::Templated do
          * false
         RENDERED
       end
+    end
+  end
+
+  context 'with fields' do
+    let(:fields) do
+      all = procs.each_with_index.map { |_, i| "field#{i}" }
+      # Intentionally repeat the last field
+      all.pop
+      all.pop
+      all.tap { |a| a << 'field-repeated' }
+    end
+
+    subject do
+      described_class.new(*procs, fields: fields)
+    end
+
+    it 'uses the field output' do
+      expect(subject.render(*data)).to eq(<<~RENDERED)
+                field0: first
+                field1: tsrif
+                field2: ignored
+                field3: 
+                field4: 
+        field-repeated: true
+        field-repeated: false
+
+                field0: second
+                field1: dnoces
+                field2: ignored
+                field3: 
+                field4: 
+        field-repeated: true
+        field-repeated: false
+
+                field0: third
+                field1: driht
+                field2: ignored
+                field3: 
+                field4: 
+        field-repeated: true
+        field-repeated: false
+      RENDERED
     end
   end
 end
