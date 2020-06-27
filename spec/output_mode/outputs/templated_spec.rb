@@ -50,7 +50,7 @@ RSpec.describe OutputMode::Outputs::Templated do
       subject { described_class.new(*procs) }
 
       it 'returns the rendered data' do
-        expect(subject.render(*data)).to eq(<<~TABLE)
+        expect(subject.render(*data)).to eq(<<~RENDERED)
           \s* first
            * tsrif
            * ignored
@@ -74,7 +74,46 @@ RSpec.describe OutputMode::Outputs::Templated do
            * 
            * true
            * false
-        TABLE
+        RENDERED
+      end
+
+      it 'uses the generate method' do
+        data.each do |datum|
+          expect(subject).to receive(:generate).with(datum).and_call_original
+        end
+        subject.render(*data)
+      end
+    end
+
+    context 'with a custom separator' do
+      subject { described_class.new(*procs, separator: "****\n") }
+
+      it 'use the new separator' do
+        expect(subject.render(*data)).to eq(<<~RENDERED)
+         * first
+         * tsrif
+         * ignored
+         * 
+         * 
+         * true
+         * false
+        ****
+         * second
+         * dnoces
+         * ignored
+         * 
+         * 
+         * true
+         * false
+        ****
+         * third
+         * driht
+         * ignored
+         * 
+         * 
+         * true
+         * false
+        RENDERED
       end
     end
   end

@@ -38,9 +38,7 @@ module OutputMode
       def render(*data)
         io = StringIO.new
         csv = CSV.new(io, **config)
-        data.each do |datum|
-          csv << procs.map { |p| p.call(datum) }
-        end
+        data.each { |d| csv << generate(d) }
         io.tap(&:rewind).read
       end
     end

@@ -43,8 +43,7 @@ module OutputMode
         # @yieldparam value An attribute to be rendered
         # @yieldparam field: An optional field header for the value
         def each
-          output.procs.each_with_index do |proc, idx|
-            value = proc.call(model)
+          output.generate(model).each_with_index do |value, idx|
             field = output.index_selector(:fields, idx)
             yield(value, field: field)
           end
@@ -78,7 +77,7 @@ module OutputMode
       # @see render
       # @see DEFAULT_ERB
       #
-      # @overload initialize(*procs, template: nil, fields: nil, seperator: "\n", **config)
+      # @overload initialize(*procs, template: nil, fields: nil, seperator: "\n", yes: 'true', no: 'false', **config)
       #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
       #   @param [String] template: A string to be converted into +ERB+
       #   @param [ERB] template: The +template+ object used by the renderer
@@ -86,7 +85,11 @@ module OutputMode
       #   @param fields: A static value to use as all field headers
       #   @param separator: The character(s) used to join the "entries" together
       #   @param [Hash] **config see {OutputMode::Outputs::Base#initialize}
-      def initialize(*procs, template: '', fields: nil, separator: "\n", **config)
+      def initialize(*procs,
+                     template: nil,
+                     fields: nil,
+                     separator: "\n",
+                     **config)
         @erb = DEFAULT_ERB
         @fields = fields
         @separator = separator
@@ -95,7 +98,7 @@ module OutputMode
 
       # Implements the render method using the ERB +template+. The +template+ will
       # be rendered within the context of an +Entry+. An +Entry+ object will be
-      # generated/ rendered for each element of +data+
+      # created/ rendered for each element of +data+
       #
       # @see OutputMode::Outputs::Base#render
       def render(*data)

@@ -36,18 +36,50 @@ module OutputMode
       #   @return [Array<#call>] the callable methods to generate output
       # @!attribute [r] config
       #   @return [Hash] additional key-values to modify the render
-      attr_reader :procs, :config
+      # @!attribute [r] default
+      #   @return either a static default or a column based array of defaults
+      # @!attribute [r] yes
+      #   @return either a static yes value or a column based array of values
+      # @!attribute [r] no
+      #   @return either a static no value or a column based array of values
+      attr_reader :procs, :config, :yes, :no, :default
 
       # Creates a new outputting instance from an array of procs
       #
       # @param *procs [Array<#call>] an array of procs (or callable objects)
+      # @param default: [String] replaces _blanks_ with a static string
+      # @param default: [Array] replace _blanks_ on a per column basis. The last value is repeated if the +procs+ are longer.
+      # @param yes: [String] replaces +true+ with a static string
+      # @param yes: [Array] replaces +true+ on a per column basis. The last value is repeated if the +procs+ are longer.
+      # @param no: [String] replaces +false+ with a static string
+      # @param no: [Array] replaces +false+ on a per column basis. The last value is repeated if the +procs+ are longer.
       # @param **config [Hash] a hash of additional keys to be stored
-      def initialize(*procs, **config)
+      def initialize(*procs, default: nil, yes: 'true', no: 'false', **config)
         @procs = procs
         @config = config
+        @yes = yes
+        @no = no
+        @default = default
       end
 
-      # @abstract It must be implemented by the subclass
+      # Returns the results of the +procs+ for a particular +object+. It will apply the
+      # +default+, +yes+, and +no+ values.
+      def generate(object)
+        procs.each_with_index.map do |p, idx|
+          raw = p.call(object)
+          if raw == true
+            index_selector(:yes, idx)
+          elsif raw == false
+            index_selector(:no, idx)
+          elsif !default.nil? && (raw.nil? || raw == '')
+            index_selector(:default, idx)
+          else
+            raw
+          end
+        end
+      end
+
+      # @abstract It should be implemented by the subclass using the +generate+ method
       # Renders the results of the procs into a string. Each data
       # objects should be passed individual to each proc to generate the final
       # output.
@@ -56,6 +88,7 @@ module OutputMode
       #
       # @param *data [Array] a set of data to be rendered into the output
       # @return [String] the output string
+      # @see #generate
       def render(*data)
         raise NotImplementedError
       end

@@ -33,12 +33,6 @@ module OutputMode
       #   @return [Symbol] the renderer type, see: https://github.com/piotrmurach/tty-table#32-renderer
       # @!attribute [r] header
       #   @return [Array] An optional header row for the table
-      # @!attribute [r] default
-      #   @return either a static default or a column based array of defaults
-      # @!attribute [r] yes
-      #   @return either a static yes value or a column based array of values
-      # @!attribute [r] no
-      #   @return either a static no value or a column based array of values
       # @!attribute [r] block
       #   @return [#call] an optional block of code that configures the renderer
 
@@ -46,32 +40,20 @@ module OutputMode
       # @see https://github.com/piotrmurach/tty-table#33-options
       def config; super; end
 
-      # @overload initialize(*procs, renderer: nil, header: nil, default: nil, yes: nil, no: nil, **config)
+      # @overload initialize(*procs, renderer: nil, header: nil, **config)
       #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
       #   @param [Symbol] :renderer override the default renderer
       #   @param [Array<String>] :header the header row of the table
-      #   @param default: [String] replaces _blanks_ with a static string
-      #   @param default: [Array] replace _blanks_ on a per column basis. The last value is repeated if the +procs+ are longer.
-      #   @param yes: [String] replaces +true+ with a static string
-      #   @param yes: [Array] replaces +true+ on a per column basis. The last value is repeated if the +procs+ are longer.
-      #   @param no: [String] replaces +false+ with a static string
-      #   @param no: [Array] replaces +false+ on a per column basis. The last value is repeated if the +procs+ are longer.
       #   @param [Hash] **config additional options to the renderer
       #   @yieldparam tty_table_renderer [TTY::Table::Renderer::Base] optional access the underlining TTY::Table renderer
       def initialize(*procs,
                      renderer: :unicode,
                      header: nil,
-                     default: nil,
-                     yes: nil,
-                     no: nil,
                      **config,
                      &block)
         @header = header
         @renderer =  renderer
         @block = block
-        @default = default
-        @yes = yes
-        @no = no
         super(*procs, **config)
       end
 
@@ -80,20 +62,7 @@ module OutputMode
       # @see https://github.com/piotrmurach/tty-table
       def render(*data)
         table = TTY::Table.new header: header
-        data.each do |datum|
-          table << procs.each_with_index.map do |callable, idx|
-            value = callable.call(datum)
-            if [nil, ''].include? value
-              index_selector(:default, idx)
-            elsif value == true
-              index_selector(:yes, idx) || 'true'
-            elsif value == false
-              index_selector(:no, idx) || 'false'
-            else
-              value
-            end
-          end
-        end
+        data.each { |d| table << generate(d) }
         table.render(renderer, **config, &block) || ''
       end
     end

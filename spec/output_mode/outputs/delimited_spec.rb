@@ -56,6 +56,13 @@ RSpec.describe OutputMode::Outputs::Delimited do
           third,driht,ignored,,"",true,false
         TABLE
       end
+
+      it 'uses the generate method' do
+        data.each do |datum|
+          expect(subject).to receive(:generate).with(datum).and_call_original
+        end
+        subject.render(*data)
+      end
     end
 
     context 'with a custom separator' do
