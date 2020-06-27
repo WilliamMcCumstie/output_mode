@@ -32,14 +32,15 @@ module OutputMode
         <%   if value.nil? && field.nil? -%>
 
         <%   elsif field.nil? -%>
-         * <%= value %>
+         <%= pastel.green.bold '*' -%> <%= pastel.blue value %>
         <%   else -%>
-        <%= padding -%><%= field -%>: <%= value %>
+        <%= padding -%><%= pastel.red.bold field -%><%= pastel.bold ':' -%> <%= pastel.blue value %>
         <%   end -%>
         <% end -%>
       TEMPLATE
 
-      Entry = Struct.new(:output, :model) do
+      Entry = Struct.new(:output, :model, :colorize) do
+
         include Enumerable
 
         # @yieldparam value An attribute to be rendered
@@ -63,13 +64,20 @@ module OutputMode
         def render(erb)
           erb.result(binding)
         end
+
+        # Library for colorizing the output. It is automatically disabled when the
+        # +colorize+ flag is +false+
+        def pastel
+          @pastel ||= Pastel.new(enabled: colorize)
+        end
       end
 
       # @!attribute [r] erb
       #   @return [ERB] The +erb+ object containing the template to be rendered.
       # @!attribute [r] separator
       # @!attribute [r] fields
-      attr_reader :erb, :fields, :separator
+      # @!attribute [r] colorize
+      attr_reader :erb, :fields, :separator, :colorize
 
       # Create a new +output+ which will render using +ERB+. The provided +template+ should
       # only render the +output+ for a single +entry+ (aka model, record, data object, etc).
@@ -90,15 +98,18 @@ module OutputMode
       #   @param [Array] fields: An optional array of field headers that map to the procs, repeating the last value if required
       #   @param fields: A static value to use as all field headers
       #   @param separator: The character(s) used to join the "entries" together
+      #   @param colorize: Flags if the caller wants the colorized version, this maybe ignored by +template+
       #   @param [Hash] **config see {OutputMode::Outputs::Base#initialize}
       def initialize(*procs,
                      template: nil,
                      fields: nil,
                      separator: "\n",
+                     colorize: false,
                      **config)
         @erb = DEFAULT_ERB
         @fields = fields
         @separator = separator
+        @colorize = colorize
         super(*procs, **config)
       end
 
@@ -108,7 +119,7 @@ module OutputMode
       #
       # @see OutputMode::Outputs::Base#render
       def render(*data)
-        data.map { |d| Entry.new(self, d).render(erb) }
+        data.map { |d| Entry.new(self, d, colorize).render(erb) }
             .join(separator)
       end
 

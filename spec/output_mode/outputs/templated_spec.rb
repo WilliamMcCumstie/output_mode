@@ -125,8 +125,10 @@ RSpec.describe OutputMode::Outputs::Templated do
       end
     end
 
+    let(:colorize) { false }
+
     subject do
-      described_class.new(*procs, fields: fields)
+      described_class.new(*procs, fields: fields, colorize: colorize)
     end
 
     it 'uses the field output' do
@@ -155,6 +157,15 @@ RSpec.describe OutputMode::Outputs::Templated do
         repeated: true
         repeated: false
       RENDERED
+    end
+
+    context 'when colorized' do
+      let(:colorize) { true }
+
+      it 'includes the color control characters' do
+        value = " \e[32;1m*\e[0m \e[34mfirst\e[0m\n  \e[31;1mfield0\e[0m\e[1m:\e[0m \e[34mtsrif\e[0m\n  \e[31;1mfield1\e[0m\e[1m:\e[0m \e[34mignored\e[0m\n  \e[31;1mfield2\e[0m\e[1m:\e[0m \n  \e[31;1mfield3\e[0m\e[1m:\e[0m \n\e[31;1mrepeated\e[0m\e[1m:\e[0m \e[34mtrue\e[0m\n\e[31;1mrepeated\e[0m\e[1m:\e[0m \e[34mfalse\e[0m\n\n \e[32;1m*\e[0m \e[34msecond\e[0m\n  \e[31;1mfield0\e[0m\e[1m:\e[0m \e[34mdnoces\e[0m\n  \e[31;1mfield1\e[0m\e[1m:\e[0m \e[34mignored\e[0m\n  \e[31;1mfield2\e[0m\e[1m:\e[0m \n  \e[31;1mfield3\e[0m\e[1m:\e[0m \n\e[31;1mrepeated\e[0m\e[1m:\e[0m \e[34mtrue\e[0m\n\e[31;1mrepeated\e[0m\e[1m:\e[0m \e[34mfalse\e[0m\n\n \e[32;1m*\e[0m \e[34mthird\e[0m\n  \e[31;1mfield0\e[0m\e[1m:\e[0m \e[34mdriht\e[0m\n  \e[31;1mfield1\e[0m\e[1m:\e[0m \e[34mignored\e[0m\n  \e[31;1mfield2\e[0m\e[1m:\e[0m \n  \e[31;1mfield3\e[0m\e[1m:\e[0m \n\e[31;1mrepeated\e[0m\e[1m:\e[0m \e[34mtrue\e[0m\n\e[31;1mrepeated\e[0m\e[1m:\e[0m \e[34mfalse\e[0m\n"
+        expect(subject.render(*data)).to eq(value)
+      end
     end
   end
 end
