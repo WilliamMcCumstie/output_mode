@@ -24,6 +24,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
+require 'tty-table'
+
 module OutputMode
   module Outputs
     class Tabulated < Base

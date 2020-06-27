@@ -24,11 +24,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'csv'
-require 'erb'
-require 'stringio'
-require 'tty-table'
-
 require "output_mode/version"
 require 'output_mode/errors'
 

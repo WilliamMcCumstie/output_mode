@@ -24,6 +24,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
+require 'erb'
+require 'pastel'
+
 module OutputMode
   module Outputs
     class Templated < Base

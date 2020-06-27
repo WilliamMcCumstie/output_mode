@@ -24,6 +24,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
+require 'csv'
+
 module OutputMode
   module Outputs
     class Delimited < Base
