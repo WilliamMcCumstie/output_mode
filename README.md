@@ -38,7 +38,7 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/Willia
 
 ## Copyright and License
 
-This project is licensed under BSD-2-Clause AND 0BSD. The compound license applies to the software as a whole and any subcomponent, unless otherwise stated. An individual file may provide a specific license as part of it's header block. The licenses header overrides the main license for the file in question.
+This project is partially dual licensed under BSD-2-Clause OR 0BSD. Source code originating from a BSD-2-Clause licensed file must comply with terms contained within the license header block. Source code originating from files without a license header block maybe redistributed under either license.
 
 The following is a copy of the BSD-2-Clause license:
 
