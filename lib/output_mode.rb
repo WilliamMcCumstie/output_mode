@@ -28,4 +28,5 @@ require "output_mode/version"
 require 'output_mode/errors'
 
 require 'output_mode/outputs'
+require 'output_mode/callable'
 

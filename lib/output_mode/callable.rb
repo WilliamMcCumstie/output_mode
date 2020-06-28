@@ -24,19 +24,42 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'pry'
+module OutputMode
+  class Callable
+    attr_reader :modes
+    attr_reader :callable
 
-require "bundler/setup"
-require "output_mode"
+    def initialize(callable, modes: {})
+      @callable = callable
+      @modes = modes.map do |k, v|
+        [k.to_sym, (v || modes.is_a?(Array)) ? true : false]
+      end.to_h
+    end
 
-RSpec.configure do |config|
-  # Enable flags like --only-failures and --next-failure
-  config.example_status_persistence_file_path = ".rspec_status"
+    def method_missing(s, *a, &b)
+      mode = s[0..-2].to_sym
+      case method_char(s)
+      when '?'
+        modes.fetch(mode, false)
+      when '!'
+        modes.fetch(mode, true)
+      else
+        super
+      end
+    end
 
-  # Disable RSpec exposing methods globally on `Module` and `main`
-  config.disable_monkey_patching!
+    def respond_to_missing?(s, *_)
+      method_char(s) ? true : false
+    end
 
-  config.expect_with :rspec do |c|
-    c.syntax = :expect
+    def method_char(s)
+      char = s[-1]
+      ['?', '!'].include?(char) ? char : nil
+    end
+
+    def call(*a)
+      callable.call(*a)
+    end
   end
 end
+
