@@ -112,5 +112,17 @@ RSpec.describe OutputMode::Callable do
     include_examples 'has all modes'
     include_examples 'has no explicit negations'
   end
+
+  context 'with a config' do
+    let(:config) { { key: 'some-other-value' } }
+
+    subject do
+      described_class.new(demo_proc, **config)
+    end
+
+    it 'stashes the config' do
+      expect(subject.config).to eq(config)
+    end
+  end
 end
 

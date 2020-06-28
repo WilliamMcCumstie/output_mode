@@ -26,14 +26,14 @@
 
 module OutputMode
   class Callable
-    attr_reader :modes
-    attr_reader :callable
+    attr_reader :modes, :callable, :config
 
-    def initialize(callable, modes: {})
+    def initialize(callable, modes: {}, **config)
       @callable = callable
       @modes = modes.map do |k, v|
         [k.to_sym, (v || modes.is_a?(Array)) ? true : false]
       end.to_h
+      @config = config
     end
 
     def method_missing(s, *a, &b)
