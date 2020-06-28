@@ -24,26 +24,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'erb'
 require 'pastel'
+
+require 'output_mode/default_erb'
 
 module OutputMode
   module Outputs
     class Templated < Output
-      DEFAULT_ERB = ERB.new(<<~TEMPLATE, nil, '-')
-        <% each do |value, field:, padding:, **_| -%>
-        <%   if value.nil? && field.nil? -%>
-
-        <%   elsif field.nil? -%>
-         <%= pastel.green.bold '*' -%> <%= pastel.blue value %>
-        <%   else -%>
-        <%= padding -%><%= pastel.red.bold field -%><%= pastel.bold ':' -%> <%= pastel.blue value %>
-        <%   end -%>
-        <% end -%>
-      TEMPLATE
-
       Entry = Struct.new(:output, :model, :colorize) do
-
         include Enumerable
 
         # @yieldparam value An attribute to be rendered
