@@ -10,9 +10,9 @@ module OutputMode
     <%   if value.nil? && field.nil? -%>
 
     <%   elsif field.nil? -%>
-     <%= pastel.green.bold '*' -%> <%= pastel.blue value %>
+     <%= pastel.bold '*' -%> <%= pastel.green value %>
     <%   else -%>
-    <%= padding -%><%= pastel.red.bold field -%><%= pastel.bold ':' -%> <%= pastel.blue value %>
+    <%= padding -%><%= pastel.blue.bold field -%><%= pastel.bold ':' -%> <%= pastel.green value %>
     <%   end -%>
     <% end -%>
   TEMPLATE
