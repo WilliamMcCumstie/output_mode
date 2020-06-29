@@ -28,8 +28,8 @@ module OutputMode
   class Callable
     attr_reader :modes, :callable, :config
 
-    def initialize(callable, modes: {}, **config)
-      @callable = callable
+    def initialize(modes: {}, **config, &block)
+      @callable = block
       @modes = modes.map do |k, v|
         [k.to_sym, (v || modes.is_a?(Array)) ? true : false]
       end.to_h

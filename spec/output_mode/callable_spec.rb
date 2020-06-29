@@ -75,7 +75,7 @@ RSpec.describe OutputMode::Callable do
   end
 
   context 'without any inputs' do
-    subject { described_class.new(demo_proc) }
+    subject { described_class.new(&demo_proc) }
 
     include_examples 'common behaviour'
     include_examples 'has no modes'
@@ -84,7 +84,7 @@ RSpec.describe OutputMode::Callable do
 
   context 'with a falsey modes hash input' do
     subject do
-      described_class.new(demo_proc, modes: modes.map { |m| [m, false] }.to_h)
+      described_class.new(modes: modes.map { |m| [m, false] }.to_h, &demo_proc)
     end
 
     include_examples 'common behaviour'
@@ -96,7 +96,7 @@ RSpec.describe OutputMode::Callable do
   end
 
   context 'with array modes' do
-    subject { described_class.new(demo_proc, modes: modes) }
+    subject { described_class.new(modes: modes, &demo_proc) }
 
     include_examples 'common behaviour'
     include_examples 'has all modes'
@@ -105,7 +105,7 @@ RSpec.describe OutputMode::Callable do
 
   context 'with a truthy modes hash' do
     subject do
-      described_class.new(demo_proc, modes: modes.map { |m| [m, true] }.to_h)
+      described_class.new(modes: modes.map { |m| [m, true] }.to_h, &demo_proc)
     end
 
     include_examples 'common behaviour'
@@ -117,7 +117,7 @@ RSpec.describe OutputMode::Callable do
     let(:config) { { key: 'some-other-value' } }
 
     subject do
-      described_class.new(demo_proc, **config)
+      described_class.new(**config, &demo_proc)
     end
 
     it 'stashes the config' do
