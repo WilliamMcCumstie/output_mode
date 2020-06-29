@@ -26,8 +26,22 @@
 
 module OutputMode
   class Callable
+    # @!attribute [r] modes
+    #   @return [Hash<Symbol => Boolean>] Returns the configured modes
+    # @!attribute [r] callable
+    #   @return [#call] Returns the underlining block
+    # @!attribute [r] config
+    #   @return [Hash] An arbitrary hash of key-value pairs
     attr_reader :modes, :callable, :config
 
+    # Wraps a block/ callable object with mode query methods
+    # @overload initialize(modes: {}, **config)
+    #   @param [Hash<Symbol => Boolean>] modes: Provide the preconfigured modes
+    #   @param **config An arbitrary hash to be stored on the object
+    #   @yield Executed by the {#call} method
+    #   @yieldparam *a The arguments provided to {#call}
+    # @overload initialize(modes: []) { |*a| ... }
+    #   @param [Array] modes: The preconfigured modes as an array, this will be converted to a hash
     def initialize(modes: {}, **config, &block)
       @callable = block
       @modes = modes.map do |k, v|
@@ -36,6 +50,18 @@ module OutputMode
       @config = config
     end
 
+    # Handles the dynamic +<query>?+ and +<explicit-negation>!+ methods
+    #
+    # The +<query>?+ methods check if the mode has been set on the object. If
+    # +query+ is a defined mode, then the value is directly pulled from #{modes}.
+    # Undefined modes will return +false+.
+    #
+    # The +<explicit-negation>!+ methods are similar to queries, but undefined modes
+    # will return +true+. This means +<explicit-negation>!+ methods only return +false+
+    # if the +explicit-negation+ mode has been set to +false+ in {#modes}.
+    #
+    # @return [Boolean] The result of the query or explicit-negation
+    # @raises [NoMethodError] All other method calls
     def method_missing(s, *a, &b)
       mode = s[0..-2].to_sym
       case method_char(s)
@@ -48,15 +74,31 @@ module OutputMode
       end
     end
 
+    # Responds +true+ for valid dynamic methods
+    # @param [Symbol] s The method to be tested
+    # @return [Boolean] The truthiness of the underlining call to {#method_char}
     def respond_to_missing?(s, *_)
       method_char(s) ? true : false
     end
 
+    # Determines the "type" associated with a dynamic method
+    # @overload method_char(bang!)
+    #   @param bang! A symbol/string ending with !
+    #   @return ['!']
+    # @overload method_char(question?)
+    #   @param question? A symbol/string ending with ?
+    #   @return ['?']
+    # @overload method_char(other)
+    #   @param other Any other symbol/string
+    #   @return [Nil]
     def method_char(s)
       char = s[-1]
       ['?', '!'].include?(char) ? char : nil
     end
 
+    # Calls the underlining block
+    # @param *a The arguments to be provided to {#callable}
+    # @return The results from the block
     def call(*a)
       callable.call(*a)
     end
