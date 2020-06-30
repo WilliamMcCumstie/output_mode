@@ -2,15 +2,17 @@
 # Refer to README.md for licensing terms
 #==============================================================================
 
+require 'tty-color'
+
 module OutputMode
   module TLDR
-    module Index
+    module Show
       include BuilderDSL
 
-      # Register a new column in the Index table
+      # Register a field when displaying a model
       # @overload register_callable(header:, verbose: true)
-      #   @param header: The column's header field when displaying to humans
-      #   @param verbose: Whether the column will be shown in the verbose output
+      #   @param header: The human readable key to the field, uses the term 'header' for consistency
+      #   @param verbose: Whether the field will be shown in the verbose output
       #   @yieldparam model The subject the column is describing, some sort of data model
       def register_callable(header:, verbose: nil, &b)
         super(modes: { verbose: verbose }, header: header, &b)
@@ -18,10 +20,10 @@ module OutputMode
 
       # Creates an new +output+ from the verbosity flag. This method only uses
       # +$stdout+ as part of it's output class discovery logic. It does not
-      # print to the output directly
+      # print to the io directly
       #
       # If +$stdout+ is an interactive shell (aka a TTY), then it will display using
-      # {OutputMode::Outputs::Tabulated}. This is intended for human consumption
+      # {OutputMode::Outputs::Templated}. This is intended for human consumption
       # and will obey the provided +verbose+ flag.
       #
       # If +$stdout+ is non-interactive, then it will display using
@@ -39,9 +41,9 @@ module OutputMode
 
         if $stdout.tty?
           # Creates the human readable output
-          Outputs::Tabulated.new(*callables,
-                                 header: callables.map { |c| c.config.fetch(:header, 'missing') },
-                                 renderer: :unicode,
+          Outputs::Templated.new(*callables,
+                                 fields: callables.map { |c| c.config.fetch(:header, 'missing') },
+                                 colorize: TTY::Color.color?,
                                  default: '(none)',
                                  yes: '✓', no: '✕')
         else
