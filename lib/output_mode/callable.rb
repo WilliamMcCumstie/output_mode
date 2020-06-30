@@ -71,9 +71,13 @@ module OutputMode
     #   @param [Array] modes: The preconfigured modes as an array, this will be converted to a hash
     def initialize(modes: {}, **config, &block)
       @callable = block
-      @modes = modes.map do |k, v|
-        [k.to_sym, (v || modes.is_a?(Array)) ? true : false]
-      end.to_h
+      @modes = if modes.is_a? Hash
+                 modes.reject { |_, v| v.nil? }
+                      .map { |k, v| [k, v ? true : false] }
+                      .to_h
+               else
+                 modes.map { |k| [k, true] }.to_h
+               end
       @config = config
     end
 

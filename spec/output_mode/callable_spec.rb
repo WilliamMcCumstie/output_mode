@@ -122,6 +122,16 @@ RSpec.describe OutputMode::Callable do
     include_examples 'has no explicit negations'
   end
 
+  context 'with a nil modes hash input' do
+    subject do
+      described_class.new(modes: modes.map { |m| [m, nil] }.to_h, &demo_proc)
+    end
+
+    include_examples 'common behaviour'
+    include_examples 'has no modes'
+    include_examples 'has no explicit negations'
+  end
+
   context 'with a falsey modes hash input' do
     subject do
       described_class.new(modes: modes.map { |m| [m, false] }.to_h, &demo_proc)

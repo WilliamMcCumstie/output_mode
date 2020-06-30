@@ -15,8 +15,7 @@ module OutputMode
       #   @param verbose: Whether the field will be shown in the verbose output
       #   @yieldparam model The subject the column is describing, some sort of data model
       def register_callable(header:, verbose: nil, &b)
-        modes = (verbose.nil? ? {} : { verbose: verbose })
-        super(modes: modes, header: header, &b)
+        super(modes: { verbose: verbose }, header: header, &b)
       end
 
       # Creates an new +output+ from the verbosity flag. This method only uses
