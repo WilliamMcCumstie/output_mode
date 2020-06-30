@@ -39,24 +39,11 @@ module OutputMode
       output_callables << Callable.new(**config, &b)
     end
 
-    # Sets and retrieves the builder block
-    # @yieldparam *callables A duplicate of {output_callables}
-    # @yieldparam **config The hash passed to the {build_output} method
-    # @yieldreturn The block must return an instance of {OutputMode::Output}
-    # @raise {OutputMode::Error} if the block is accesssed before being set
-    # @return [Block] The builder block
-    def output_builder(&b)
-      @output_builder = b if b
-      @output_builder || raise(OutputMode::Error, <<~ERROR)
-        The 'output_builder' has not been set!
-      ERROR
-    end
-
-    # Creates a new +output+ from the {output_builder} and provided +config+
-    # @param config An arbitrary set of values to be passed to {output_builder}
-    # @return OutputMode::Output The result of the block
+    # Provides the base method signature
+    # @abstract Must be implemented by the main class/module
+    # @return OutputMode::Output The newly created output
     def build_output(**config)
-      output_builder.call(*output_callables, **config)
+      raise NotImplementedError
     end
   end
 end
