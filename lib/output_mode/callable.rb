@@ -25,6 +25,33 @@
 #==============================================================================
 
 module OutputMode
+  # @api private
+  # Internal array like object that will convert procs to Callable
+  class Callables < Array
+    def initialize(callables = nil)
+      case callables
+      when Array
+        super().tap do |all|
+          callables.each { |c| all << c }
+        end
+      when nil
+        super()
+      else
+        raise "Can not convert #{callables.class} into a #{self.class}"
+      end
+    end
+
+    def <<(item)
+      if item.is_a? Callable
+        super
+      elsif item.respond_to?(:call)
+        super(Callable.new(&item))
+      else
+        raise Error, "#{item.class} is not callable"
+      end
+    end
+  end
+
   class Callable
     # @!attribute [r] modes
     #   @return [Hash<Symbol => Boolean>] Returns the configured modes

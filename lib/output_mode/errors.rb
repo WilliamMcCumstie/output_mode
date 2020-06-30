@@ -26,6 +26,5 @@
 
 module OutputMode
   class Error < StandardError; end
-  class UndefinedOutputMode < StandardError; end
 end
 

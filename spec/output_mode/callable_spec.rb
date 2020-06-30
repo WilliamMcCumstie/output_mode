@@ -24,6 +24,46 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
+RSpec.describe OutputMode::Callables do
+  subject { described_class.new }
+
+  describe '<<' do
+    shared_examples 'common behaviour' do
+      it 'adds the proc' do
+        expect(subject.length).to eq(1)
+      end
+
+      it 'converts the type to Callable' do
+        expect(subject.first).to be_a(OutputMode::Callable)
+      end
+
+      it 'does not mangle the internal proc' do
+        expect(subject.first.callable).not_to be_a(OutputMode::Callable)
+      end
+    end
+
+    context 'when created with a proc' do
+      subject { described_class.new([->() {}]) }
+
+      include_examples 'common behaviour'
+    end
+
+    context 'with a proc' do
+      before { subject << ->() {} }
+
+      include_examples 'common behaviour'
+    end
+
+    context 'with a Callable' do
+      before do
+        subject << OutputMode::Callable.new { 'noop' }
+      end
+
+      include_examples 'common behaviour'
+    end
+  end
+end
+
 RSpec.describe OutputMode::Callable do
   let(:modes) { [:test1, :test2, :test3] }
   let(:mode_queries) { modes.map { |m| :"#{m}?" } }
