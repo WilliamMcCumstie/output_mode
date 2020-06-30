@@ -34,12 +34,22 @@ A basic use case would be:
 
 ```
 class Foo
-  include OutputMode::TLDR::Index
+  extend OutputMode::TLDR::Index
 
   # Adds a "column" to the output. Fundamentally the "column" is a block transform function
-  register_callable
+  register_callable(header: 'ID') { |model| model.id }
+  register_callable(header: 'Name') { |model| model.name }
+
+  # Show different date formats according to verbosity, only one column will be displayed
+  register_callable(header: 'Create Date', verbose: true) { |m| m.create_date.to_rfc3339 }
+  register_callable(header: 'Create Date', verbose false) { |m| m.create_date.strftime("%F") }
 end
+
+data = [... data models ...]
+puts Foo.build_output.render(*data)
 ```
+
+If this use case becomes to restrictive, look at the internals of the `TLDR` modules on how they are implemented. This will give you ideas on how to implement the `outputs`/`modes` for your bespoke use case.
 
 ## Development
 

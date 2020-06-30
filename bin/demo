@@ -14,6 +14,9 @@ module DemoIndex
   register_callable(header: 'Standard') { 'always visible' }
   register_callable(header: 'Verbose', verbose: true) { 'verbose visible' }
   register_callable(header: 'Simplified', verbose: false) { 'simplified visible' }
+  register_callable(header: 'Yes/True') { true }
+  register_callable(header: 'No/False') { false }
+  register_callable(header: 'Missing') { nil }
 end
 
 module DemoShow
@@ -23,6 +26,9 @@ module DemoShow
   register_callable(header: 'Standard') { 'always visible' }
   register_callable(header: 'Verbose', verbose: true) { 'verbose visible' }
   register_callable(header: 'Simplified', verbose: false) { 'simplified visible' }
+  register_callable(header: 'Yes/True') { true }
+  register_callable(header: 'No/False') { false }
+  register_callable(header: 'Missing') { nil }
 end
 
 data = [1, 2, 3]
