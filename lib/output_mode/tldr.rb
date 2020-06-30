@@ -24,11 +24,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require "output_mode/version"
-require 'output_mode/errors'
-
-require 'output_mode/outputs'
-require 'output_mode/callable'
-require 'output_mode/builder_dsl'
-require 'output_mode/tldr'
+module OutputMode
+  module TLDR
+    Dir.glob(File.expand_path('tldr/*.rb', __dir__)).each do |path|
+      autoload File.basename(path).chomp('.rb').capitalize, path
+    end
+  end
+end
 
