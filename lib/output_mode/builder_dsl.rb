@@ -24,10 +24,40 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require "output_mode/version"
-require 'output_mode/errors'
+module OutputMode
+  module BuilderDSL
+    # The callable objects an `output` can be built from
+    def output_callables
+      @output_callables ||= Callables.new
+    end
 
-require 'output_mode/outputs'
-require 'output_mode/callable'
-require 'output_mode/builder_dsl'
+    # Adds a new callable object to {output_callables}
+    # @abstract This maybe overridden to restrict the method signature
+    # @param config Directly provided to {OutputMode::Callable#initialize}
+    # @yield Directly provided to {OutputMode::Callable#initialize}
+    def register_callable(**config, &b)
+      output_callables << Callable.new(**config, &b)
+    end
+
+    # Sets and retrieves the builder block
+    # @yieldparam *callables A duplicate of {output_callables}
+    # @yieldparam **config The hash passed to the {build_output} method
+    # @yieldreturn The block must return an instance of {OutputMode::Output}
+    # @raise {OutputMode::Error} if the block is accesssed before being set
+    # @return [Block] The builder block
+    def output_builder(&b)
+      @output_builder = b if b
+      @output_builder || raise(OutputMode::Error, <<~ERROR)
+        The 'output_builder' has not been set!
+      ERROR
+    end
+
+    # Creates a new +output+ from the {output_builder} and provided +config+
+    # @param config An arbitrary set of values to be passed to {output_builder}
+    # @return OutputMode::Output The result of the block
+    def build_output(**config)
+      output_builder.call(*output_callables, **config)
+    end
+  end
+end
 

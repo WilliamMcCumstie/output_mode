@@ -25,9 +25,9 @@
 #==============================================================================
 
 module OutputMode
-  # @api private
   # Internal array like object that will convert procs to Callable
   class Callables < Array
+    # @api private
     def initialize(callables = nil)
       case callables
       when Array
