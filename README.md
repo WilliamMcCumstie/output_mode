@@ -2,9 +2,7 @@
 
 # OutputMode
 
-Controls how tabulated data is printed to StandardOut (or any IO). Use it to "prettify" outputs for humans; whilst easily delimited by machines.
-
-Either use an off the shelf solution or build a custom set of outputs.
+Provides a set of wrapper `Outputs` to common libraries: `TTY::Table`, `CSV`, and `ERB`. Focus on "what" you want to print to a terminal instead of "how" it should be formatted.
 
 ## Installation
 
@@ -24,7 +22,24 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Checkout the [demo script](bin/demo) for a basic getting started example. It uses the two prefabricated modules:
+ * `OutputMode::TLDR::Index` - Tabulate the data models for humans and tab ("\t") delimit it for machines
+ * `OutputMode::TLDR::Show` - List the data model(s) for humans and tab ("\t") delimit it for machines
+
+The `TLDR` modules are designed for a fairly limited use case, where:
+ * The humanized/machine outputs is toggled if `StandardOut` is connected to a `TTY`,
+ * Certain columns/fields need to be hidden based on a user supplied verbosity toggle.
+
+A basic use case would be:
+
+```
+class Foo
+  include OutputMode::TLDR::Index
+
+  # Adds a "column" to the output. Fundamentally the "column" is a block transform function
+  register_callable
+end
+```
 
 ## Development
 

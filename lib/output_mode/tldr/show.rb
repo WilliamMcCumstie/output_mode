@@ -1,5 +1,5 @@
 #==============================================================================
-# Refer to README.md for licensing terms
+# Refer to LICENSE.txt for licensing terms
 #==============================================================================
 
 require 'tty-color'
@@ -33,11 +33,11 @@ module OutputMode
       # flag as it is always verbose.
       def build_output(verbose: false)
         callables = if verbose || !$stdout.tty?
-          # Display all columns
-          output_callables
-        else
-          # Filter out all columns which are explicitly not verbose
+          # Filter out columns that are explicitly not verbose
           output_callables.select(&:verbose!)
+        else
+          # Filter out columns that are explicitly verbose
+          output_callables.reject(&:verbose?)
         end
 
         if $stdout.tty?
