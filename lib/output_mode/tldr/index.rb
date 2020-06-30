@@ -43,6 +43,7 @@ module OutputMode
           Outputs::Tabulated.new(*callables,
                                  header: callables.map { |c| c.config.fetch(:header, 'missing') },
                                  renderer: :unicode,
+                                 padding: [0,1],
                                  default: '(none)',
                                  yes: '✓', no: '✕')
         else
