@@ -17,6 +17,7 @@ module OutputMode
       def register_callable(header:, verbose: nil, &b)
         super(modes: { verbose: verbose }, header: header, &b)
       end
+      alias_method :register_attribute, :register_callable
 
       # Creates an new +output+ from the verbosity flag. This method only uses
       # +$stdout+ as part of it's output class discovery logic. It does not
