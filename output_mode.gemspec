@@ -31,6 +31,7 @@ require "output_mode/version"
 Gem::Specification.new do |spec|
   spec.name          = "output_mode"
   spec.version       = OutputMode::VERSION
+  spec.licenses      = ['BSD-2-Clause']
   spec.authors       = ["William McCumsite"]
   spec.email         = ["openlicense.williams@gmail.com"]
 
