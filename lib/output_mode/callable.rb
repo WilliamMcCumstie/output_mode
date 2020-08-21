@@ -83,27 +83,35 @@ module OutputMode
 
     # Handles the dynamic +<query>?+ and +<explicit-negation>!+ methods
     #
-    # The +<query>?+ methods check if the mode has been set on the object. If
-    # +query+ is a defined mode, then the value is directly pulled from #{modes}.
-    # Undefined modes will return +false+.
-    #
-    # The +<explicit-negation>!+ methods are similar to queries, but undefined modes
-    # will return +true+. This means +<explicit-negation>!+ methods only return +false+
-    # if the +explicit-negation+ mode has been set to +false+ in {#modes}.
-    #
     # @return [Boolean] The result of the query or explicit-negation
-    # @raises [NoMethodError] All other method calls
-    def method_missing(s, *a, &b)
+    # @raise [NoMethodError] All other method calls
+    def method_missing(s, *args, &b)
       mode = s[0..-2].to_sym
       case method_char(s)
       when '?'
-        modes.fetch(mode, false)
+        ifnone = (args.length > 0 ? args.first : false)
+        modes.fetch(mode, ifnone)
       when '!'
-        modes.fetch(mode, true)
+        send(:"#{mode}?", true)
       else
         super
       end
     end
+
+    # @!method mode?(ifnone = false)
+    #   This is a dynamic method for check if an arbitrary +mode+ has been set. It will
+    #   return the associated value if the +mode+ has been defined in {#modes}.
+    #
+    #   Otherwise it will return the +ifnone+ value
+    #   @return [Boolean] the associated value if +mode+ has been defined
+    #   @return otherwise return the +ifnone+ value
+    #
+    # @!method mode!
+    #   Older syntax that returns +true+ if the +mode+ has not been defined. Otherwise
+    #   the same as {#mode?}
+    #
+    #   @return [Boolean]
+    #   @deprecated Please use the newer +mode?(true)+ syntax
 
     # Responds +true+ for valid dynamic methods
     # @param [Symbol] s The method to be tested
