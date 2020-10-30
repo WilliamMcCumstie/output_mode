@@ -35,12 +35,14 @@ module OutputMode
       #   @return [Array] An optional header row for the table
       # @!attribute [r] block
       #   @return [#call] an optional block of code that configures the renderer
+      # @!attribute [r] colorize
+      #   @return [Boolean] enable or disabled the colorization
       # @!attribute [r] header_color
       #   @return An optional header color or array of colors
       # @!attribute [r] row_color
       #   @return An optional data color or array of colors
       attr_reader :renderer, :header, :default, :block, :yes, :no,
-                  :header_color, :row_color
+                  :header_color, :row_color, :colorize
 
       # @return [Hash] additional options to +TTY::Table+ renderer
       # @see https://github.com/piotrmurach/tty-table#33-options
@@ -54,6 +56,7 @@ module OutputMode
       #   @yieldparam tty_table_renderer [TTY::Table::Renderer::Base] optional access the underlining TTY::Table renderer
       def initialize(*procs,
                      renderer: :unicode,
+                     colorize: false,
                      header: nil,
                      header_color: nil,
                      row_color: nil,
@@ -64,6 +67,7 @@ module OutputMode
         @block = block
         @header_color = header_color
         @row_color = row_color
+        @colorize = colorize
         super(*procs, **config)
       end
 
@@ -109,7 +113,7 @@ module OutputMode
       end
 
       def pastel
-        @pastel ||= Pastel::Color.new(enabled: true)
+        @pastel ||= Pastel::Color.new(enabled: colorize)
       end
     end
   end
