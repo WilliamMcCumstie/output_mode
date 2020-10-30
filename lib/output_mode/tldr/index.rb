@@ -72,17 +72,15 @@ module OutputMode
           output_callables.reject(&:verbose?)
         end
 
-        # Generates the header colors
-        header_colors = callables.map { |c| c.config[:header_color] || header_color }
-        row_colors    = callables.map { |c| c.config[:row_color] || row_color }
-
         if interactive || (interactive.nil? && $stdout.tty?)
           # Creates the human readable output
           opts = if ascii
                    { yes: 'y', no: 'n', renderer: :ascii }
                  else
+                   header_colors = callables.map { |c| c.config[:header_color] || header_color }
+                   row_colors    = callables.map { |c| c.config[:row_color] || row_color }
                    { yes: '✓', no: '✕', renderer: :unicode, header_color:  header_colors, row_color: row_colors }
-                  end
+                 end
 
           Outputs::Tabulated.new(*callables,
                                  header: callables.map { |c| c.config.fetch(:header, 'missing') },
