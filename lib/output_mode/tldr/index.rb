@@ -21,6 +21,8 @@ module OutputMode
       # +$stdout+ as part of it's output class discovery logic. It does not
       # print to the output directly
       #
+      # The +ascii+ flag disables the unicode formatting in interactive shells
+      #
       # If +$stdout+ is an interactive shell (aka a TTY), then it will display using
       # {OutputMode::Outputs::Tabulated}. This is intended for human consumption
       # and will obey the provided +verbose+ flag.
@@ -29,7 +31,7 @@ module OutputMode
       # {OutputMode::Outputs::Delimited} using tab delimiters. This is intended
       # for consumption by machines. This output ignores the provided +verbose+
       # flag as it is always verbose.
-      def build_output(verbose: false)
+      def build_output(verbose: false, ascii: false)
         callables = if verbose || !$stdout.tty?
           # Filter out columns that are explicitly not verbose
           output_callables.select(&:verbose!)
@@ -39,13 +41,20 @@ module OutputMode
         end
 
         if $stdout.tty?
+          opts = if ascii
+                   { yes: 'y', no: 'n', renderer: :ascii }
+                 else
+                   { yes: '✓', no: '✕', renderer: :unicode }
+                  end
+
           # Creates the human readable output
           Outputs::Tabulated.new(*callables,
                                  header: callables.map { |c| c.config.fetch(:header, 'missing') },
                                  renderer: :unicode,
                                  padding: [0,1],
                                  default: '(none)',
-                                 yes: '✓', no: '✕')
+                                 **opts
+                                 )
         else
           # Creates the machine readable output
           Outputs::Delimited.new(*callables, col_sep: "\t", yes: 'y', no: 'n', default: '')
