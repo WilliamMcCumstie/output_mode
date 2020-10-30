@@ -63,5 +63,5 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/Willia
 
 ## Copyright and License
 
-See [LICENSE](LICENSE.txt) for dual licensing details.
+See [LICENSE](LICENSE.txt) for licensing details.
 
