@@ -62,6 +62,18 @@ puts <<~EOF
 #{DemoShow.build_output(verbose: false).render(*data)}
 
 #==============================================================================
+# Force Interactive
+# Always print as if the shell is interactive
+#==============================================================================
+#{DemoShow.build_output(interactive: true).render(*data)}
+
+#==============================================================================
+# Force Non-Interactive
+# Always print as if the shell is non-interactive
+#==============================================================================
+#{DemoShow.build_output(interactive: false).render(*data)}
+
+#==============================================================================
 # Demo ASCII Index
 #==============================================================================
 #{DemoShow.build_output(ascii: true).render(*data)}

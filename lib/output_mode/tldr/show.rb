@@ -37,7 +37,10 @@ module OutputMode
       # {OutputMode::Outputs::Delimited} using tab delimiters. This is intended
       # for consumption by machines. This output ignores the provided +verbose+
       # flag as it is always verbose.
-      def build_output(verbose: false, ascii: false)
+      #
+      # An interative/ non-interactive output can be forced by setting the
+      # +interactive+ flag to +true+/+false+ respectively
+      def build_output(verbose: false, ascii: false, interactive: nil)
         callables = if verbose || !$stdout.tty?
           # Filter out columns that are explicitly not verbose
           output_callables.select { |o| o.verbose?(true) }
@@ -46,7 +49,7 @@ module OutputMode
           output_callables.reject(&:verbose?)
         end
 
-        if $stdout.tty?
+        if interactive || (interactive.nil? && $stdout.tty?)
           # Creates the human readable output
           opts = if ascii
                    { yes: 'y', no: 'n' }
