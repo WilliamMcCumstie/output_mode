@@ -31,12 +31,12 @@ require "output_mode"
 module DemoIndex
   extend OutputMode::TLDR::Index
 
-  register_callable(header: 'Integer') { |i| i }
-  register_callable(header: 'Standard') { 'always visible' }
+  register_callable(header: 'Integer', row_color: [:yellow, :bold]) { |i| i }
+  register_callable(header: 'Standard', header_color: [:strikethrough] ) { 'always visible' }
   register_callable(header: 'Verbose', verbose: true) { 'verbose visible' }
   register_callable(header: 'Simplified', verbose: false) { 'simplified visible' }
   register_callable(header: 'Yes/True') { true }
-  register_callable(header: 'No/False') { false }
+  register_callable(header: 'No/False', row_color: [:clear]) { false }
   register_callable(header: 'Missing') { nil }
 end
 

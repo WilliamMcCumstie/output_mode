@@ -33,9 +33,12 @@ module OutputMode
       # @overload register_callable(header:, verbose: true)
       #   @param header: The column's header field when displaying to humans
       #   @param verbose: Whether the column will be shown in the verbose output
+      #   @param header_color: Override the default color for the header
+      #   @param row_color: Override the default color for the row
       #   @yieldparam model The subject the column is describing, some sort of data model
-      def register_callable(header:, verbose: nil, &b)
-        super(modes: { verbose: verbose }, header: header, &b)
+      def register_callable(header:, verbose: nil, header_color: nil, row_color: nil, &b)
+        super(modes: { verbose: verbose }, header: header,
+              header_color: header_color, row_color: row_color, &b)
       end
       alias_method :register_column, :register_callable
 
@@ -60,7 +63,7 @@ module OutputMode
       #
       # An interative/ non-interactive output can be forced by setting the
       # +interactive+ flag to +true+/+false+ respectively
-      def build_output(verbose: false, ascii: false, interactive: nil, header_color: [[:blue, :bold]], row_color: [:green])
+      def build_output(verbose: false, ascii: false, interactive: nil, header_color: [:blue, :bold], row_color: :green)
         callables = if verbose || !$stdout.tty?
           # Filter out columns that are explicitly not verbose
           output_callables.select { |o| o.verbose?(true) }
@@ -69,12 +72,16 @@ module OutputMode
           output_callables.reject(&:verbose?)
         end
 
+        # Generates the header colors
+        header_colors = callables.map { |c| c.config[:header_color] || header_color }
+        row_colors    = callables.map { |c| c.config[:row_color] || row_color }
+
         if interactive || (interactive.nil? && $stdout.tty?)
           # Creates the human readable output
           opts = if ascii
                    { yes: 'y', no: 'n', renderer: :ascii }
                  else
-                   { yes: '✓', no: '✕', renderer: :unicode, header_color:  header_color, row_color: row_color }
+                   { yes: '✓', no: '✕', renderer: :unicode, header_color:  header_colors, row_color: row_colors }
                   end
 
           Outputs::Tabulated.new(*callables,
