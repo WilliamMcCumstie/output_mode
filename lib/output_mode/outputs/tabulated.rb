@@ -29,14 +29,18 @@ require 'tty-table'
 module OutputMode
   module Outputs
     class Tabulated < Output
-      attr_reader :renderer, :header, :default, :block, :yes, :no
-
       # @!attribute [r] renderer
       #   @return [Symbol] the renderer type, see: https://github.com/piotrmurach/tty-table#32-renderer
       # @!attribute [r] header
       #   @return [Array] An optional header row for the table
       # @!attribute [r] block
       #   @return [#call] an optional block of code that configures the renderer
+      # @!attribute [r] header_color
+      #   @return An optional header color or array of colors
+      # @!attribute [r] row_color
+      #   @return An optional data color or array of colors
+      attr_reader :renderer, :header, :default, :block, :yes, :no,
+                  :header_color, :row_color
 
       # @return [Hash] additional options to +TTY::Table+ renderer
       # @see https://github.com/piotrmurach/tty-table#33-options
@@ -51,11 +55,15 @@ module OutputMode
       def initialize(*procs,
                      renderer: :unicode,
                      header: nil,
+                     header_color: nil,
+                     row_color: nil,
                      **config,
                      &block)
         @header = header
         @renderer =  renderer
         @block = block
+        @header_color = header_color
+        @row_color = row_color
         super(*procs, **config)
       end
 
@@ -63,9 +71,45 @@ module OutputMode
       # @see OutputMode::Outputs::Base#render
       # @see https://github.com/piotrmurach/tty-table
       def render(*data)
-        table = TTY::Table.new header: header
-        data.each { |d| table << generate(d) }
+        table = TTY::Table.new header: processed_header
+        data.each { |d| table << process_row(generate(d)) }
         table.render(renderer, **config, &block) || ''
+      end
+
+      private
+
+      # Colorizes the header when requested
+      def processed_header
+        header&.each_with_index&.map do |h, idx|
+          color = index_selector(:header_color, idx)
+          case color
+          when nil
+            h
+          when Array
+            pastel.decorate(h, *color)
+          else
+            pastel.decorate(h, color)
+          end
+        end
+      end
+
+      # Colorizes the row when requested
+      def process_row(data)
+        data.each_with_index.map do |d, idx|
+          color = index_selector(:row_color, idx)
+          case color
+          when NilClass
+            d
+          when Array
+            pastel.decorate(d, *color)
+          else
+            pastel.decorate(d, color)
+          end
+        end
+      end
+
+      def pastel
+        @pastel ||= Pastel::Color.new(enabled: true)
       end
     end
   end

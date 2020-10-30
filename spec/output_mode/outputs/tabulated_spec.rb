@@ -85,6 +85,28 @@ RSpec.describe OutputMode::Outputs::Tabulated do
       end
     end
 
+    context 'with colorized headers and data' do
+      let(:header) do
+        ['stringify', 'reverse', 'ignore', 'nill', 'empty-string']
+      end
+
+      subject do
+        described_class.new(*procs, header: header, header_color: [[:blue, :bold]], row_color: [:green, :yellow])
+      end
+
+      it 'replaces true/false with either a static or column based value' do
+        expect(subject.render(*data)).to eq(<<~TABLE.chomp)
+          ┌─────────┬───────┬───────┬────┬────────────┐
+          │\e[34;1mstringify\e[0m│\e[34;1mreverse\e[0m│\e[34;1mignore\e[0m │\e[34;1mnill\e[0m│\e[34;1mempty-string\e[0m│
+          ├─────────┼───────┼───────┼────┼────────────┤
+          │\e[32mfirst\e[0m    │\e[33mtsrif\e[0m  │\e[33mignored\e[0m│    │            │
+          │\e[32msecond\e[0m   │\e[33mdnoces\e[0m │\e[33mignored\e[0m│    │            │
+          │\e[32mthird\e[0m    │\e[33mdriht\e[0m  │\e[33mignored\e[0m│    │            │
+          └─────────┴───────┴───────┴────┴────────────┘
+        TABLE
+      end
+    end
+
     context 'with render options' do
       let(:opts) { { alignments: ['right', 'left', 'right'] } }
 
