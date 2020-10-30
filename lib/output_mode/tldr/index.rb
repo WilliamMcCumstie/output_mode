@@ -60,7 +60,7 @@ module OutputMode
       #
       # An interative/ non-interactive output can be forced by setting the
       # +interactive+ flag to +true+/+false+ respectively
-      def build_output(verbose: false, ascii: false, interactive: nil)
+      def build_output(verbose: false, ascii: false, interactive: nil, header_color: [[:blue, :bold]], row_color: [:cyan])
         callables = if verbose || !$stdout.tty?
           # Filter out columns that are explicitly not verbose
           output_callables.select { |o| o.verbose?(true) }
@@ -74,7 +74,7 @@ module OutputMode
           opts = if ascii
                    { yes: 'y', no: 'n', renderer: :ascii }
                  else
-                   { yes: '✓', no: '✕', renderer: :unicode }
+                   { yes: '✓', no: '✕', renderer: :unicode, header_color:  header_color, row_color: row_color }
                   end
 
           Outputs::Tabulated.new(*callables,
