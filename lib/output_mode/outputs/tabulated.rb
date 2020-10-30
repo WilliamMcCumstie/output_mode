@@ -84,11 +84,11 @@ module OutputMode
           color = index_selector(:header_color, idx)
           case color
           when nil
-            h
+            h.to_s
           when Array
-            pastel.decorate(h, *color)
+            pastel.decorate(h.to_s, *color)
           else
-            pastel.decorate(h, color)
+            pastel.decorate(h.to_s, color)
           end
         end
       end
@@ -99,11 +99,11 @@ module OutputMode
           color = index_selector(:row_color, idx)
           case color
           when NilClass
-            d
+            d.to_s
           when Array
-            pastel.decorate(d, *color)
+            pastel.decorate(d.to_s, *color)
           else
-            pastel.decorate(d, color)
+            pastel.decorate(d.to_s, color)
           end
         end
       end
