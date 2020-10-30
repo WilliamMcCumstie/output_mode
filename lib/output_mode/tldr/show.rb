@@ -52,14 +52,13 @@ module OutputMode
         if interactive || (interactive.nil? && $stdout.tty?)
           # Creates the human readable output
           opts = if ascii
-                   { yes: 'y', no: 'n' }
+                   { yes: 'y', no: 'n', colorize: false }
                  else
-                   { yes: '✓', no: '✕' }
+                   { yes: '✓', no: '✕', colorize: TTY::Color.color? }
                   end
 
           Outputs::Templated.new(*callables,
                                  fields: callables.map { |c| c.config.fetch(:header, 'missing') },
-                                 colorize: TTY::Color.color?,
                                  default: '(none)',
                                  **opts)
         else
