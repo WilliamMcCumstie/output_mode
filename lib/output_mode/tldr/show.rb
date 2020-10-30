@@ -40,7 +40,7 @@ module OutputMode
       def build_output(verbose: false, ascii: false)
         callables = if verbose || !$stdout.tty?
           # Filter out columns that are explicitly not verbose
-          output_callables.select(&:verbose!)
+          output_callables.select { |o| o.verbose?(true) }
         else
           # Filter out columns that are explicitly verbose
           output_callables.reject(&:verbose?)
