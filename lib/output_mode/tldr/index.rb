@@ -60,7 +60,7 @@ module OutputMode
       #
       # An interative/ non-interactive output can be forced by setting the
       # +interactive+ flag to +true+/+false+ respectively
-      def build_output(verbose: false, ascii: false, interactive: nil, header_color: [[:blue, :bold]], row_color: [:cyan])
+      def build_output(verbose: false, ascii: false, interactive: nil, header_color: [[:blue, :bold]], row_color: [:green])
         callables = if verbose || !$stdout.tty?
           # Filter out columns that are explicitly not verbose
           output_callables.select { |o| o.verbose?(true) }
