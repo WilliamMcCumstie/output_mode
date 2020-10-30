@@ -60,6 +60,9 @@ puts <<~EOF
 # NOTE: Disabled for non-interactive shell, shows the verbose output instead
 #==============================================================================
 #{DemoShow.build_output(verbose: false).render(*data)}
+
+#==============================================================================
+# Demo ASCII Index
+#==============================================================================
+#{DemoShow.build_output(ascii: true).render(*data)}
 EOF
-
-

@@ -45,13 +45,13 @@ module OutputMode
         end
 
         if $stdout.tty?
+          # Creates the human readable output
           opts = if ascii
                    { yes: 'y', no: 'n', renderer: :ascii }
                  else
                    { yes: '✓', no: '✕', renderer: :unicode }
                   end
 
-          # Creates the human readable output
           Outputs::Tabulated.new(*callables,
                                  header: callables.map { |c| c.config.fetch(:header, 'missing') },
                                  padding: [0,1],
