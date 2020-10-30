@@ -77,9 +77,11 @@ module OutputMode
           opts = if ascii
                    { yes: 'y', no: 'n', renderer: :ascii }
                  else
-                   header_colors = callables.map { |c| c.config[:header_color] || header_color }
-                   row_colors    = callables.map { |c| c.config[:row_color] || row_color }
-                   { yes: '✓', no: '✕', renderer: :unicode, header_color:  header_colors, row_color: row_colors }
+                   {
+                     yes: '✓', no: '✕', renderer: :unicode, colorize: TTY::Color.color?,
+                     header_color: callables.map { |c| c.config[:header_color] || header_color },
+                     row_color: callables.map { |c| c.config[:row_color] || row_color }
+                   }
                  end
 
           Outputs::Tabulated.new(*callables,
