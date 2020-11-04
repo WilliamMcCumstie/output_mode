@@ -24,6 +24,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
+require 'tty-color'
+
 module OutputMode
   module TLDR
     module Index
