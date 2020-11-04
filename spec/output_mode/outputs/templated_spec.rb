@@ -168,9 +168,13 @@ RSpec.describe OutputMode::Outputs::Templated do
       end
     end
 
-    context 'with sections' do
-      let(:erb) do
-        ERB.new(<<~ERB, nil, '-')
+    shared_examples 'with custom template' do
+      let(:fields) do
+        (0..procs.length).map { |i| "field#{i.to_s * i}" }
+      end
+
+      let(:template) do
+        <<~ERB
           # Section 1 Start
           <% each(:section1) do |value, field:, padding:, **_| -%>
           <%= padding -%><%= field -%>: <%= value %>
@@ -184,14 +188,10 @@ RSpec.describe OutputMode::Outputs::Templated do
         ERB
       end
 
-      let(:fields) do
-        (0..procs.length).map { |i| "field#{i.to_s * i}" }
-      end
-
       let(:sections) { [:section2, :section1, :section2, :skip] }
       subject do
         described_class.new(
-          *procs, sections: sections, template: erb, fields: fields
+          *procs, sections: sections, template: template_input, fields: fields
         )
       end
 
@@ -222,6 +222,20 @@ RSpec.describe OutputMode::Outputs::Templated do
           # End
         RENDERED
       end
+    end
+
+    context 'with sections and erb template' do
+      let(:template_input) do
+        ERB.new(template, nil, '-')
+      end
+
+      include_examples 'with custom template'
+    end
+
+    context 'with sections and string template' do
+      let(:template_input) { template }
+
+      include_examples 'with custom template'
     end
   end
 end

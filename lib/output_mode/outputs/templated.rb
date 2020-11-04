@@ -119,7 +119,14 @@ module OutputMode
                      colorize: false,
                      sections: nil,
                      **config)
-        @erb = template || DEFAULT_ERB
+        @erb = case template
+        when String
+          ERB.new(template, nil, '-')
+        when ERB
+          template
+        else
+          DEFAULT_ERB
+        end
         @fields = fields
         @separator = separator
         @colorize = colorize
