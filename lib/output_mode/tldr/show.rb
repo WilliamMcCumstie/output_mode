@@ -74,7 +74,7 @@ module OutputMode
         if interactive || (interactive.nil? && $stdout.tty?)
           # Creates the human readable output
           opts = if ascii
-                   { yes: 'y', no: 'n', colorize: false }
+                   { yes: 'yes', no: 'no', colorize: false }
                  else
                    { yes: '✓', no: '✕', colorize: TTY::Color.color? }
                   end
@@ -85,7 +85,7 @@ module OutputMode
                                  **opts)
         else
           # Creates the machine readable output
-          Outputs::Delimited.new(*callables, col_sep: "\t", yes: 'y', no: 'n', default: '')
+          Outputs::Delimited.new(*callables, col_sep: "\t", yes: 'yes', no: 'no', default: '')
         end
       end
     end
