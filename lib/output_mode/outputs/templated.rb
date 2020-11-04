@@ -38,9 +38,23 @@ module OutputMode
         # @yieldparam field: An optional field header for the value
         # @yieldparam padding: A padding string which will right align the +field+
         # @yieldparam **config TBA
-        def each
-          max = output.max_field_length
-          output.generate(model).each_with_index do |value, idx|
+        def each(section = nil)
+          # Select the indices for the relevant section
+          indices = (0...output.procs.length).to_a
+          if section
+            indices.select! do |idx|
+              output.index_selector(:sections, idx) == section
+            end
+          end
+
+          # Find the max field length
+          max = indices.map do |idx|
+            output.index_selector(:fields, idx).to_s.length
+          end.max
+
+          # Yield each selected attribute
+          indices.each do |idx|
+            value = generated[idx]
             field = output.index_selector(:fields, idx)
             padding = ' ' * (max - field.to_s.length)
             yield(value, field: field, padding: padding)
@@ -61,6 +75,12 @@ module OutputMode
         def pastel
           @pastel ||= Pastel.new(enabled: colorize)
         end
+
+        private
+
+        def generated
+          @generated ||= output.generate(model)
+        end
       end
 
       # @!attribute [r] erb
@@ -68,7 +88,8 @@ module OutputMode
       # @!attribute [r] separator
       # @!attribute [r] fields
       # @!attribute [r] colorize
-      attr_reader :erb, :fields, :separator, :colorize
+      # @!attribute [r] sections
+      attr_reader :erb, :fields, :separator, :colorize, :sections
 
       # Create a new +output+ which will render using +ERB+. The provided +template+ should
       # only render the +output+ for a single +entry+ (aka model, record, data object, etc).
@@ -84,23 +105,25 @@ module OutputMode
       #
       # @overload initialize(*procs, template: nil, fields: nil, seperator: "\n", yes: 'true', no: 'false', **config)
       #   @param [Array] *procs see {OutputMode::Output#initialize}
-      #   @param [String] template: A string to be converted into +ERB+
       #   @param [ERB] template: The +template+ object used by the renderer
       #   @param [Array] fields: An optional array of field headers that map to the procs, repeating the last value if required
       #   @param fields: A static value to use as all field headers
       #   @param separator: The character(s) used to join the "entries" together
       #   @param colorize: Flags if the caller wants the colorized version, this maybe ignored by +template+
+      #   @param sections: An optional array that groups the procs into sections. This is ignored by default
       #   @param [Hash] **config see {OutputMode::Output#initialize}
       def initialize(*procs,
                      template: nil,
                      fields: nil,
                      separator: "\n",
                      colorize: false,
+                     sections: nil,
                      **config)
-        @erb = DEFAULT_ERB
+        @erb = template || DEFAULT_ERB
         @fields = fields
         @separator = separator
         @colorize = colorize
+        @sections = sections
         super(*procs, **config)
       end
 

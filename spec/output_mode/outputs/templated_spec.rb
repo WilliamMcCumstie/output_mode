@@ -167,5 +167,61 @@ RSpec.describe OutputMode::Outputs::Templated do
         expect(subject.render(*data)).to eq(value)
       end
     end
+
+    context 'with sections' do
+      let(:erb) do
+        ERB.new(<<~ERB, nil, '-')
+          # Section 1 Start
+          <% each(:section1) do |value, field:, padding:, **_| -%>
+          <%= padding -%><%= field -%>: <%= value %>
+          <% end -%>
+
+          # Section 2 Start
+          <% each(:section2) do |value, field:, padding:, **_| -%>
+          <%= padding -%><%= field -%>: <%= value %>
+          <% end -%>
+          # End
+        ERB
+      end
+
+      let(:fields) do
+        (0..procs.length).map { |i| "field#{i.to_s * i}" }
+      end
+
+      let(:sections) { [:section2, :section1, :section2, :skip] }
+      subject do
+        described_class.new(
+          *procs, sections: sections, template: erb, fields: fields
+        )
+      end
+
+      it 'can be grouped' do
+        expect(subject.render(*data)).to eq(<<~RENDERED)
+          # Section 1 Start
+          field1: tsrif
+
+          # Section 2 Start
+            field: first
+          field22: ignored
+          # End
+
+          # Section 1 Start
+          field1: dnoces
+
+          # Section 2 Start
+            field: second
+          field22: ignored
+          # End
+
+          # Section 1 Start
+          field1: driht
+
+          # Section 2 Start
+            field: third
+          field22: ignored
+          # End
+        RENDERED
+      end
+    end
   end
 end
