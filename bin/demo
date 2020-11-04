@@ -27,6 +27,7 @@
 
 require "bundler/setup"
 require "output_mode"
+require 'erb'
 
 module DemoIndex
   extend OutputMode::TLDR::Index
@@ -47,12 +48,24 @@ module DemoShow
   register_callable(header: 'Standard') { 'always visible' }
   register_callable(header: 'Verbose', verbose: true) { 'verbose visible' }
   register_callable(header: 'Simplified', verbose: false) { 'simplified visible' }
-  register_callable(header: 'Yes/True') { true }
-  register_callable(header: 'No/False') { false }
+  register_callable(header: 'Yes/True', section: :boolean) { true }
+  register_callable(header: 'No/False', section: :boolean) { false }
   register_callable(header: 'Missing') { nil }
 end
 
 data = [1, 2, 3]
+
+other_template = ERB.new(<<~TEMPLATE, nil, '-')
+# Non boolean values
+<% each(:other) do |value, field:, padding:, **_| -%>
+<%= padding -%><%= pastel.blue.bold field -%><%= pastel.bold ':' -%> <%= pastel.green value %>
+<% end -%>
+
+# Boolean Values
+<% each(:boolean) do |value, field:, padding:, **_| -%>
+<%= padding -%><%= pastel.blue.bold field -%><%= pastel.bold ':' -%> <%= pastel.green value %>
+<% end -%>
+TEMPLATE
 
 puts <<~EOF
 #==============================================================================
@@ -122,4 +135,11 @@ puts <<~EOF
 # Demo ASCII Index
 #==============================================================================
 #{DemoShow.build_output(ascii: true).render(*data)}
+
+#==============================================================================
+# Group the boolean value separately
+# NOTE: This only occurs in interactive mode
+#       Non-Interactive sessions have a fix order
+#==============================================================================
+#{DemoShow.build_output(template: other_template).render(*data)}
 EOF

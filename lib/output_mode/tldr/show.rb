@@ -35,9 +35,10 @@ module OutputMode
       # @overload register_callable(header:, verbose: true)
       #   @param header: The human readable key to the field, uses the term 'header' for consistency
       #   @param verbose: Whether the field will be shown in the verbose output
+      #   @param section: Define the grouping a callable belongs to. Ignored by default
       #   @yieldparam model The subject the column is describing, some sort of data model
-      def register_callable(header:, verbose: nil, &b)
-        super(modes: { verbose: verbose }, header: header, &b)
+      def register_callable(header:, verbose: nil, section: :other, &b)
+        super(modes: { verbose: verbose }, header: header, section: section, &b)
       end
       alias_method :register_attribute, :register_callable
 
@@ -60,9 +61,11 @@ module OutputMode
       # for consumption by machines. This output ignores the provided +verbose+
       # flag as it is always verbose.
       #
+      # The +template+ overrides the default erb template for the output
+      #
       # An interative/ non-interactive output can be forced by setting the
       # +interactive+ flag to +true+/+false+ respectively
-      def build_output(verbose: false, ascii: false, interactive: nil)
+      def build_output(verbose: false, ascii: false, interactive: nil, template: nil)
         callables = if verbose || !$stdout.tty?
           # Filter out columns that are explicitly not verbose
           output_callables.select { |o| o.verbose?(true) }
@@ -73,15 +76,19 @@ module OutputMode
 
         if interactive || (interactive.nil? && $stdout.tty?)
           # Creates the human readable output
-          opts = if ascii
-                   { yes: 'yes', no: 'no', colorize: false }
-                 else
-                   { yes: '✓', no: '✕', colorize: TTY::Color.color? }
+          opts =  if ascii
+                    { yes: 'yes', no: 'no', colorize: false }
+                  else
+                    { yes: '✓', no: '✕', colorize: TTY::Color.color? }
                   end
+
+          sections = callables.map { |o| o.config[:section] }
 
           Outputs::Templated.new(*callables,
                                  fields: callables.map { |c| c.config.fetch(:header, 'missing') },
                                  default: '(none)',
+                                 sections: sections,
+                                 template: template,
                                  **opts)
         else
           # Creates the machine readable output
