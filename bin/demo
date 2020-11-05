@@ -75,13 +75,18 @@ puts <<~EOF
 #==============================================================================
 
 #==============================================================================
+# Default Demo Index
+# Simplified in interactive shells, verbose in non-interactive
+#==============================================================================
+#{DemoIndex.build_output.render(*data)}
+
+#==============================================================================
 # Demo Verbose Index
 #==============================================================================
 #{DemoIndex.build_output(verbose: true).render(*data)}
 
 #==============================================================================
 # Demo "Simplified" Index
-# NOTE: Disabled for non-interactive shell, shows the verbose output instead
 #==============================================================================
 #{DemoIndex.build_output(verbose: false).render(*data)}
 
@@ -109,13 +114,18 @@ puts <<~EOF
 #==============================================================================
 
 #==============================================================================
+# Default Settings
+# Simplified in interactive shells, verbose in non-interactive
+#==============================================================================
+#{DemoShow.build_output.render(*data)}
+
+#==============================================================================
 # Demo Verbose Show
 #==============================================================================
 #{DemoShow.build_output(verbose: true).render(*data)}
 
 #==============================================================================
 # Demo "Simplified" Show
-# NOTE: Disabled for non-interactive shell, shows the verbose output instead
 #==============================================================================
 #{DemoShow.build_output(verbose: false).render(*data)}
 
