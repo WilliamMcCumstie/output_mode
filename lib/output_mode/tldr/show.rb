@@ -35,10 +35,11 @@ module OutputMode
       # @overload register_callable(header:, verbose: true)
       #   @param header: The human readable key to the field, uses the term 'header' for consistency
       #   @param verbose: Whether the field will be shown in the verbose output
+      #   @param interactive: Whether the field will be show in the interactive output
       #   @param section: Define the grouping a callable belongs to. Ignored by default
       #   @yieldparam model The subject the column is describing, some sort of data model
-      def register_callable(header:, verbose: nil, section: :other, &b)
-        super(modes: { verbose: verbose }, header: header, section: section, &b)
+      def register_callable(header:, verbose: nil, interactive: nil, section: :other, &b)
+        super(modes: { verbose: verbose, interactive: interactive }, header: header, section: section, &b)
       end
       alias_method :register_attribute, :register_callable
 
@@ -80,6 +81,14 @@ module OutputMode
         else
           # Filter out columns that are explicitly verbose
           output_callables.reject(&:verbose?)
+        end
+
+        callables = if interactive
+          # Filter out columns that are explicitly not interactive
+          callables.select { |o| o.interactive?(true) }
+        else
+          # Filter out columns that are explicitly interactive
+          callables.reject { |o| o.interactive? }
         end
 
         if interactive

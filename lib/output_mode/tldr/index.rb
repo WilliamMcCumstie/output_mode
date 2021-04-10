@@ -35,11 +35,12 @@ module OutputMode
       # @overload register_callable(header:, verbose: true)
       #   @param header: The column's header field when displaying to humans
       #   @param verbose: Whether the column will be shown in the verbose output
+      #   @param interactive: Whether the field will be show in the interactive output
       #   @param header_color: Override the default color for the header
       #   @param row_color: Override the default color for the row
       #   @yieldparam model The subject the column is describing, some sort of data model
-      def register_callable(header:, verbose: nil, header_color: nil, row_color: nil, &b)
-        super(modes: { verbose: verbose }, header: header,
+      def register_callable(header:, verbose: nil, interactive: nil, header_color: nil, row_color: nil, &b)
+        super(modes: { verbose: verbose, interactive: interactive }, header: header,
               header_color: header_color, row_color: row_color, &b)
       end
       alias_method :register_column, :register_callable
@@ -80,6 +81,14 @@ module OutputMode
         else
           # Filter out columns that are explicitly verbose
           output_callables.reject(&:verbose?)
+        end
+
+        callables = if interactive
+          # Filter out columns that are explicitly not interactive
+          callables.select { |o| o.interactive?(true) }
+        else
+          # Filter out columns that are explicitly interactive
+          callables.reject { |o| o.interactive? }
         end
 
         if interactive

@@ -36,6 +36,8 @@ module DemoIndex
   register_callable(header: 'Standard', header_color: [:strikethrough] ) { 'always visible' }
   register_callable(header: 'Verbose', verbose: true) { 'verbose visible' }
   register_callable(header: 'Simplified', verbose: false) { 'simplified visible' }
+  register_callable(header: 'Interactive', interactive: true) { 'interactive visible' }
+  register_callable(header: 'Non Interactive', interactive: false) { 'non-interactive visible' }
   register_callable(header: 'Yes/True') { true }
   register_callable(header: 'No/False', row_color: [:clear]) { false }
   register_callable(header: 'Missing') { nil }
@@ -59,6 +61,8 @@ module DemoShow
   register_callable(header: 'Standard') { 'always visible' }
   register_callable(header: 'Verbose', verbose: true) { 'verbose visible' }
   register_callable(header: 'Simplified', verbose: false) { 'simplified visible' }
+  register_callable(header: 'Interactive', interactive: true) { 'interactive visible' }
+  register_callable(header: 'Non Interactive', interactive: false) { 'non-interactive visible' }
   register_callable(header: 'Yes/True', section: :boolean) { true }
   register_callable(header: 'No/False', section: :boolean) { false }
   register_callable(header: 'Missing') { nil }
