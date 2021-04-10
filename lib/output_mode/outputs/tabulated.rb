@@ -31,8 +31,6 @@ module OutputMode
     class Tabulated < Output
       # @!attribute [r] renderer
       #   @return [Symbol] the renderer type, see: https://github.com/piotrmurach/tty-table#32-renderer
-      # @!attribute [r] header
-      #   @return [Array] An optional header row for the table
       # @!attribute [r] block
       #   @return [#call] an optional block of code that configures the renderer
       # @!attribute [r] colorize
@@ -41,28 +39,25 @@ module OutputMode
       #   @return An optional header color or array of colors
       # @!attribute [r] row_color
       #   @return An optional data color or array of colors
-      attr_reader :renderer, :header, :default, :block, :yes, :no,
+      attr_reader :renderer, :default, :block, :yes, :no,
                   :header_color, :row_color, :colorize
 
       # @return [Hash] additional options to +TTY::Table+ renderer
       # @see https://github.com/piotrmurach/tty-table#33-options
       def config; super; end
 
-      # @overload initialize(*procs, renderer: nil, header: nil, **config)
+      # @overload initialize(*procs, renderer: nil, **config)
       #   @param [Array] *procs see {OutputMode::Outputs::Base#initialize}
       #   @param [Symbol] :renderer override the default renderer
-      #   @param [Array<String>] :header the header row of the table
       #   @param [Hash] **config additional options to the renderer
       #   @yieldparam tty_table_renderer [TTY::Table::Renderer::Base] optional access the underlining TTY::Table renderer
       def initialize(*procs,
                      renderer: :unicode,
                      colorize: false,
-                     header: nil,
                      header_color: nil,
                      row_color: nil,
                      **config,
                      &block)
-        @header = header
         @renderer =  renderer
         @block = block
         @header_color = header_color
@@ -76,7 +71,7 @@ module OutputMode
       # @see https://github.com/piotrmurach/tty-table
       def render(*data)
         table = TTY::Table.new header: processed_header
-        data.each { |d| table << process_row(generate(d)) }
+        data.each { |d| table << process_row(d) }
         table.render(renderer, **config, &block) || ''
       end
 
@@ -84,23 +79,25 @@ module OutputMode
 
       # Colorizes the header when requested
       def processed_header
-        header&.each_with_index&.map do |h, idx|
-          color = index_selector(:header_color, idx)
+        callables.map do |callable|
+          header = callable.config.fetch(:header, '')
+          color = callable.config.fetch(:header_color) || header_color
           case color
           when nil
-            h.to_s
+            header.to_s
           when Array
-            pastel.decorate(h.to_s, *color)
+            pastel.decorate(header.to_s, *color)
           else
-            pastel.decorate(h.to_s, color)
+            pastel.decorate(header.to_s, color)
           end
         end
       end
 
       # Colorizes the row when requested
-      def process_row(data)
-        data.each_with_index.map do |d, idx|
-          color = index_selector(:row_color, idx)
+      def process_row(model)
+        callables.map do |callable|
+          d = callable.generator(self).call(model)
+          color = callable.config[:row_color] || row_color
           case color
           when NilClass
             d.to_s

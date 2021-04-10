@@ -85,13 +85,12 @@ module OutputMode
                  else
                    {
                      yes: '✓', no: '✕', renderer: :unicode, colorize: TTY::Color.color?,
-                     header_color: callables.map { |c| c.config[:header_color] || header_color },
-                     row_color: callables.map { |c| c.config[:row_color] || row_color }
+                     header_color: header_color,
+                     row_color: row_color
                    }
                  end
 
           Outputs::Tabulated.new(*callables,
-                                 header: callables.map { |c| c.config.fetch(:header, 'missing') },
                                  padding: [0,1],
                                  default: '(none)',
                                  **opts

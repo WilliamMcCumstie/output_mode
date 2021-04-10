@@ -86,37 +86,5 @@ module OutputMode
     def render(*data)
       raise NotImplementedError
     end
-
-    # A helper method for selecting elements from a source array or return
-    # a static value.
-    #
-    # @param [Symbol] method The source method on the +output+
-    # @param [Integer] index The index to lookup
-    #
-    # @overload index_selector(array_method, valid_index)
-    #   @param array_method A method that returns an array
-    #   @param valid_index An index that is less than the array's length
-    #   @return the value at the index
-    #
-    # @overload index_selector(array_method, out_of_bounds)
-    #   @param array_method A method that returns an array
-    #   @param out_of_bounds An index greater than the maximum array length
-    #   @return the last element of the array
-    #
-    # @overload index_selector(non_array_method, _)
-    #   @param non_array_method A method that does not return an array
-    #   @param _ The index is ignored
-    #   @return the result of the non_array_method
-    def index_selector(method, index)
-      source = public_send(method)
-      is_array = source.is_a? Array
-      if is_array && source.length > index
-        source[index]
-      elsif is_array
-        source.last
-      else
-        source
-      end
-    end
   end
 end
