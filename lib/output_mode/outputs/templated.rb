@@ -38,27 +38,25 @@ module OutputMode
         # @yieldparam field: An optional field header for the value
         # @yieldparam padding: A padding string which will right align the +field+
         # @yieldparam **config TBA
-        def each(section = nil)
-          # Select the indices for the relevant section
-          indices = (0...output.procs.length).to_a
-          if section
-            indices.select! do |idx|
-              output.index_selector(:sections, idx) == section
-            end
-          end
-
-          # Find the max field length
-          max = indices.map do |idx|
-            output.index_selector(:fields, idx).to_s.length
-          end.max
+        def each(section = nil, &block)
+          # Select the callable objects
+          callables = if section == nil
+                        output.callables
+                      elsif section == :default
+                        output.callables.config_select(:section, :default, nil)
+                      else
+                        output.callables.config_select(:section, section)
+                      end
 
           # Yield each selected attribute
-          indices.each do |idx|
-            value = generated[idx]
-            field = output.index_selector(:fields, idx)
-            padding = ' ' * (max - field.to_s.length)
-            yield(value, field: field, padding: padding)
+          objs = callables.pad_each.map do |callable, padding:|
+            value = callable.generator(output).call(model)
+            field = callable.config[:header]
+            [value, {field: field, padding: padding }]
           end
+
+          # Runs the provided block
+          objs.each(&block)
         end
 
         # Renders an ERB object within the entry's context. This provides access to the

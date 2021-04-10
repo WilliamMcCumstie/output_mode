@@ -54,27 +54,22 @@ module OutputMode
     # @param no: [Array] replaces +false+ on a per column basis. The last value is repeated if the +procs+ are longer.
     # @param **config [Hash] a hash of additional keys to be stored
     def initialize(*procs, default: nil, yes: 'true', no: 'false', **config)
-      @procs = procs
+      @procs = Callables.new(procs)
       @config = config
       @yes = yes
       @no = no
       @default = default
     end
 
+    def callables
+      procs
+    end
+
     # Returns the results of the +procs+ for a particular +object+. It will apply the
     # +default+, +yes+, and +no+ values.
     def generate(object)
-      procs.each_with_index.map do |p, idx|
-        raw = p.call(object)
-        if raw == true
-          index_selector(:yes, idx)
-        elsif raw == false
-          index_selector(:no, idx)
-        elsif !default.nil? && (raw.nil? || raw == '')
-          index_selector(:default, idx)
-        else
-          raw
-        end
+      procs.map do |callable|
+        callable.generator(self).call(object)
       end
     end
 

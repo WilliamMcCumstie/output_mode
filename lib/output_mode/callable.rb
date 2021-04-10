@@ -26,16 +26,17 @@
 
 module OutputMode
   # Internal array like object that will convert procs to Callable
-  class Callables < Array
+  class Callables
+    include Enumerable
+
     # @api private
     def initialize(callables = nil)
+      @callables = []
       case callables
-      when Array
-        super().tap do |all|
-          callables.each { |c| all << c }
-        end
+      when Array, Callables
+        callables.each { |c| @callables << c }
       when nil
-        super()
+        # NOOP
       else
         raise "Can not convert #{callables.class} into a #{self.class}"
       end
@@ -43,12 +44,44 @@ module OutputMode
 
     def <<(item)
       if item.is_a? Callable
-        super
+        @callables << item
       elsif item.respond_to?(:call)
-        super(Callable.new(&item))
+        @callables << Callable.new(&item)
       else
         raise Error, "#{item.class} is not callable"
       end
+    end
+
+    def each(&block)
+      @callables.each(&block)
+    end
+
+    def pad_each(key = :header)
+      max_length = self.map { |c| c.config[key].to_s.length }
+                       .max
+
+      pads = self.map do |callable|
+        length = max_length - callable.config[key].to_s.length
+        [callable, { padding: ' ' * length }]
+      end
+
+      if block_given?
+        pads.each { |*args|  yield(*args) }
+      else
+        pads.each
+      end
+    end
+
+    def config_select(key, *values)
+      selected = self.select do |callable|
+        conf = callable.config[key]
+        if conf.is_a? Array
+          !(conf & values).empty?
+        else
+          values.include?(conf)
+        end
+      end
+      Callables.new(selected)
     end
   end
 
@@ -140,6 +173,21 @@ module OutputMode
     # @return The results from the block
     def call(*a)
       callable.call(*a)
+    end
+
+    def generator(output)
+      ->(*a) do
+        raw = call(*a)
+        if raw == true
+          config[:yes] || output.yes
+        elsif raw == false
+          config[:no] ||  output.no
+        elsif [nil, ''].include?(raw)
+          config[:default] || output.default
+        else
+          raw
+        end
+      end
     end
   end
 end
