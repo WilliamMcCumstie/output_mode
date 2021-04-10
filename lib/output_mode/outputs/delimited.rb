@@ -40,7 +40,12 @@ module OutputMode
       def render(*data)
         io = StringIO.new
         csv = CSV.new(io, **config)
-        data.each { |d| csv << generate(d) }
+        data.each do |datum|
+          csv << generate(datum).map do |value|
+            next nil if value.nil?
+            value.to_s.dump[1...-1]
+          end
+        end
         io.tap(&:rewind).read
       end
     end

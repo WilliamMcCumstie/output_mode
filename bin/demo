@@ -51,6 +51,8 @@ module DemoShow
   register_callable(header: 'Yes/True', section: :boolean) { true }
   register_callable(header: 'No/False', section: :boolean) { false }
   register_callable(header: 'Missing') { nil }
+  register_callable(header: 'Tab') { "tab1\ttab2" }
+  register_callable(header: 'New line') { "line1\nline2" }
 end
 
 data = [1, 2, 3]
