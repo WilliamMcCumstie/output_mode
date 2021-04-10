@@ -36,29 +36,30 @@ module OutputMode
     # @!attribute [r] config
     #   @return [Hash] additional key-values to modify the render
     # @!attribute [r] default
-    #   @return either a static default or a column based array of defaults
+    #   @return either a static default
     # @!attribute [r] yes
-    #   @return either a static yes value or a column based array of values
+    #   @return either a static yes value
     # @!attribute [r] no
-    #   @return either a static no value or a column based array of values
-    attr_reader :procs, :config, :yes, :no, :default
+    #   @return either a static no value
+    # @!attribute [r] context
+    #   @return a hash of keys to be provided to the callables
+    attr_reader :procs, :config, :yes, :no, :default, :context
 
     # Creates a new outputting instance from an array of procs
     #
     # @param *procs [Array<#call>] an array of procs (or callable objects)
     # @param default: [String] replaces _blanks_ with a static string
-    # @param default: [Array] replace _blanks_ on a per column basis. The last value is repeated if the +procs+ are longer.
     # @param yes: [String] replaces +true+ with a static string
-    # @param yes: [Array] replaces +true+ on a per column basis. The last value is repeated if the +procs+ are longer.
     # @param no: [String] replaces +false+ with a static string
-    # @param no: [Array] replaces +false+ on a per column basis. The last value is repeated if the +procs+ are longer.
+    # @param context: [Hash] of keys to be provided to the callables
     # @param **config [Hash] a hash of additional keys to be stored
-    def initialize(*procs, default: nil, yes: 'true', no: 'false', **config)
+    def initialize(*procs, default: nil, yes: 'true', no: 'false', context: {}, **config)
       @procs = Callables.new(procs)
       @config = config
       @yes = yes
       @no = no
       @default = default
+      @context = context
     end
 
     def callables

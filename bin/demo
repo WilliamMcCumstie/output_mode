@@ -39,6 +39,17 @@ module DemoIndex
   register_callable(header: 'Yes/True') { true }
   register_callable(header: 'No/False', row_color: [:clear]) { false }
   register_callable(header: 'Missing') { nil }
+  register_callable(header: 'Inline') do |interactive:, verbose:|
+    if interactive && verbose
+      'interactive-verbose'
+    elsif interactive
+      'interactive-simplified'
+    elsif verbose
+      'non-interactive-verbose'
+    else
+      'non-interactive-simplified'
+    end
+  end
 end
 
 module DemoShow

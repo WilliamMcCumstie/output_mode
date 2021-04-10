@@ -65,10 +65,14 @@ module OutputMode
       #
       # An interative/ non-interactive output can be forced by setting the
       # +interactive+ flag to +true+/+false+ respectively
-      def build_output(verbose: nil, ascii: false, interactive: nil, template: nil)
+      def build_output(verbose: nil, ascii: nil, interactive: nil, template: nil, context: {})
         # Set the interactive and verbose flags if not provided
         interactive = $stdout.tty?  if interactive.nil?
         verbose =     !interactive  if verbose.nil?
+        ascii =       !interactive  if ascii.nil?
+
+        # Update the rendering context with the verbosity/interactive settings
+        context = context.merge(interactive: interactive, verbose: verbose, ascii: ascii)
 
         callables = if verbose
           # Filter out columns that are explicitly not verbose
@@ -93,10 +97,12 @@ module OutputMode
                                  default: '(none)',
                                  sections: sections,
                                  template: template,
+                                 context: context,
                                  **opts)
         else
           # Creates the machine readable output
-          Outputs::Delimited.new(*callables, col_sep: "\t", yes: 'yes', no: 'no', default: nil)
+          Outputs::Delimited.new(*callables, col_sep: "\t", yes: 'yes', no: 'no', default: nil,
+                                 context: context)
         end
       end
     end

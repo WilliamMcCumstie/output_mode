@@ -177,7 +177,15 @@ module OutputMode
 
     def generator(output)
       ->(*a) do
-        raw = call(*a)
+        # Implicitly determine which parts of the context can be passed through
+        ctx = if callable.parameters.any? { |type, _| type == :keyrest }
+                output.context
+              else
+                keys = callable.parameters.select { |type, _| [:key, :keyreq].include?(type) }
+                                      .map { |_, k| k }
+                output.context.slice(*keys)
+              end
+        raw = call(*a, **ctx)
         if raw == true
           config[:yes] || output.yes
         elsif raw == false
