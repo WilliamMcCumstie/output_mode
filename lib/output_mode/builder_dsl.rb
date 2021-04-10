@@ -36,7 +36,9 @@ module OutputMode
     # @param config Directly provided to {OutputMode::Callable#initialize}
     # @yield Directly provided to {OutputMode::Callable#initialize}
     def register_callable(**config, &b)
-      output_callables << Callable.new(**config, &b)
+      Callable.new(**config, &b).tap do |c|
+        output_callables << c
+      end
     end
 
     # Provides the base method signature
