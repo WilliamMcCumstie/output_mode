@@ -28,3 +28,10 @@ source "https://rubygems.org"
 
 # Specify your gem's dependencies in output_mode.gemspec
 gemspec
+
+# NOTE: Checks out the openflight version of tty-table with the 'rotate' flag
+# fix. This should eventually become part of the mainline version of TTY::Table
+#
+# This is intentionally not part of the gemspec so older versions of TTY::Table
+# can still be used
+gem 'tty-table', github: 'openflighthpc/tty-table', branch: '9b326fcbe04968463da58c000fbb1dd5ce178243'

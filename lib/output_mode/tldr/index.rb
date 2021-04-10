@@ -104,6 +104,7 @@ module OutputMode
                  end
 
           Outputs::Tabulated.new(*callables,
+                                 rotate: false,
                                  padding: [0,1],
                                  default: '(none)',
                                  context: context,
