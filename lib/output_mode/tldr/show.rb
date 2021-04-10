@@ -96,7 +96,7 @@ module OutputMode
                                  **opts)
         else
           # Creates the machine readable output
-          Outputs::Delimited.new(*callables, col_sep: "\t", yes: 'yes', no: 'no', default: '')
+          Outputs::Delimited.new(*callables, col_sep: "\t", yes: 'yes', no: 'no', default: nil)
         end
       end
     end
