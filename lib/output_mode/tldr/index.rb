@@ -38,10 +38,15 @@ module OutputMode
       #   @param interactive: Whether the field will be show in the interactive output
       #   @param header_color: Override the default color for the header
       #   @param row_color: Override the default color for the row
+      #   @param modes: Additional modes flags for the callable
       #   @yieldparam model The subject the column is describing, some sort of data model
-      def register_callable(header:, verbose: nil, interactive: nil, header_color: nil, row_color: nil, &b)
-        super(modes: { verbose: verbose, interactive: interactive }, header: header,
-              header_color: header_color, row_color: row_color, &b)
+      def register_callable(modes: {}, header:, verbose: nil, interactive: nil, header_color: nil, row_color: nil, &b)
+        modes = modes.map { |m| [m, true] }.to_h if modes.is_a? Array
+        super(modes: modes.merge(verbose: verbose, interactive: interactive),
+              header: header,
+              header_color: header_color,
+              row_color: row_color,
+              &b)
       end
       alias_method :register_column, :register_callable
 

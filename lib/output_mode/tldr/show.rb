@@ -37,9 +37,14 @@ module OutputMode
       #   @param verbose: Whether the field will be shown in the verbose output
       #   @param interactive: Whether the field will be show in the interactive output
       #   @param section: Define the grouping a callable belongs to. Ignored by default
+      #   @param modes: Additional modes flags for the callable
       #   @yieldparam model The subject the column is describing, some sort of data model
-      def register_callable(header:, verbose: nil, interactive: nil, section: :other, &b)
-        super(modes: { verbose: verbose, interactive: interactive }, header: header, section: section, &b)
+      def register_callable(modes: {}, header:, verbose: nil, interactive: nil, section: :other, &b)
+        modes = modes.map { |m| [m, true] }.to_h if modes.is_a? Array
+        super(modes: modes.merge(verbose: verbose, interactive: interactive),
+              header: header,
+              section: section,
+              &b)
       end
       alias_method :register_attribute, :register_callable
 
