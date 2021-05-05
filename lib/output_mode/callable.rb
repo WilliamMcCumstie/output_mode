@@ -56,13 +56,23 @@ module OutputMode
       @callables.each(&block)
     end
 
-    def pad_each(key = :header)
-      max_length = self.map { |c| c.config[key].to_s.length }
-                       .max
+    def pad_each(key = :header, *ctx)
+      fields = self.map do |callables|
+        field = callables.config[key]
+        if field.respond_to?(:call) && ctx.empty?
+          raise Error, 'Can not pad dynamic fields without a context'
+        elsif field.respond_to?(:call)
+          field.call(*ctx).to_s
+        else
+          field.to_s
+        end
+      end
 
-      pads = self.map do |callable|
-        length = max_length - callable.config[key].to_s.length
-        [callable, { padding: ' ' * length }]
+      max_length = fields.map(&:length).max
+      pads = self.each_with_index.map do |callable, idx|
+        field = fields[idx]
+        length = max_length - field.length
+        [callable, { padding: ' ' * length, field: field }]
       end
 
       if block_given?
