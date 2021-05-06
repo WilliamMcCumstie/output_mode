@@ -49,10 +49,9 @@ module OutputMode
                       end
 
           # Yield each selected attribute
-          objs = callables.pad_each.map do |callable, padding:|
+          objs = callables.pad_each(model, **output.context).map do |callable, padding:, field:|
             value = callable.generator(output).call(model)
-            field = callable.config[:header]
-            [value, {field: field, padding: padding }]
+            [value, { field: field, padding: padding }]
           end
 
           # Runs the provided block

@@ -56,13 +56,19 @@ module OutputMode
       @callables.each(&block)
     end
 
-    def pad_each(key = :header, *ctx)
+    def pad_each(*ctx, **input_opts)
       fields = self.map do |callables|
-        field = callables.config[key]
-        if field.respond_to?(:call) && ctx.empty?
-          raise Error, 'Can not pad dynamic fields without a context'
-        elsif field.respond_to?(:call)
-          field.call(*ctx).to_s
+        field = callables.config[:header]
+        if field.respond_to?(:call)
+          opts =  if field.parameters.include?(:keyrest)
+                    input_opts.dup
+                  else
+                    keys = field.parameters
+                                 .select { |type, _| [:key, :keyreq].include?(type) }
+                                 .map { |_, k| k }
+                    input_opts.slice(*keys)
+                  end
+          opts.empty? ? field.call(*ctx) : field.call(*ctx, **opts)
         else
           field.to_s
         end
@@ -76,7 +82,7 @@ module OutputMode
       end
 
       if block_given?
-        pads.each { |*args|  yield(*args) }
+        pads.each { |c, opts|  yield(c, **opts) }
       else
         pads.each
       end

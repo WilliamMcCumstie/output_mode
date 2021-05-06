@@ -39,7 +39,7 @@ module OutputMode
       #   @param section: Define the grouping a callable belongs to. Ignored by default
       #   @param modes: Additional modes flags for the callable
       #   @yieldparam model The subject the column is describing, some sort of data model
-      def register_callable(modes: {}, header:, verbose: nil, interactive: nil, section: :other, &b)
+      def register_callable(modes: {}, header:, verbose: nil, interactive: nil, section: :default, &b)
         modes = modes.map { |m| [m, true] }.to_h if modes.is_a? Array
         super(modes: modes.merge(verbose: verbose, interactive: interactive),
               header: header,
