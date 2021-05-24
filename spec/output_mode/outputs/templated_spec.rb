@@ -30,7 +30,6 @@ RSpec.describe OutputMode::Outputs::Templated do
       ->(v) { v.to_s },
       ->(v) { v.to_s.reverse },
       ->(_) { 'ignored' },
-      ->(_) { nil },
       ->(_) { '' },
       ->(_) { true },
       ->(_) { false }
@@ -46,43 +45,6 @@ RSpec.describe OutputMode::Outputs::Templated do
       expect(subject.render).to eq('')
     end
 
-    context 'with basic data' do
-      it 'returns the rendered data' do
-        expect(subject.render(*data)).to eq(<<~RENDERED)
-          \s* first
-           * tsrif
-           * ignored
-
-           * 
-           * true
-           * false
-
-           * second
-           * dnoces
-           * ignored
-
-           * 
-           * true
-           * false
-
-           * third
-           * driht
-           * ignored
-
-           * 
-           * true
-           * false
-        RENDERED
-      end
-
-      it 'uses the generate method' do
-        data.each do |datum|
-          expect(subject).to receive(:generate).with(datum).and_call_original
-        end
-        subject.render(*data)
-      end
-    end
-
     context 'with a custom separator' do
       subject { described_class.new(*procs, separator: "****\n") }
 
@@ -92,7 +54,6 @@ RSpec.describe OutputMode::Outputs::Templated do
          * tsrif
          * ignored
 
-         * 
          * true
          * false
         ****
@@ -100,7 +61,6 @@ RSpec.describe OutputMode::Outputs::Templated do
          * dnoces
          * ignored
 
-         * 
          * true
          * false
         ****
@@ -108,7 +68,6 @@ RSpec.describe OutputMode::Outputs::Templated do
          * driht
          * ignored
 
-         * 
          * true
          * false
         RENDERED
@@ -121,14 +80,19 @@ RSpec.describe OutputMode::Outputs::Templated do
     let(:fields) do
       (0..(procs.length - 4)).map { |i| "field#{i}" }.tap do |f|
         f.unshift(nil)
-        f << 'repeated'
       end
     end
 
     let(:colorize) { false }
 
+    before do
+      subject.callables.each_with_index do |callable, idx|
+        callable.config[:header] = idx < fields.length ? fields[idx] : 'repeated'
+      end
+    end
+
     subject do
-      described_class.new(*procs, fields: fields, colorize: colorize)
+      described_class.new(*procs, colorize: colorize)
     end
 
     it 'uses the field output' do
@@ -137,7 +101,6 @@ RSpec.describe OutputMode::Outputs::Templated do
           field0: tsrif
           field1: ignored
           field2: 
-          field3: 
         repeated: true
         repeated: false
 
@@ -145,7 +108,6 @@ RSpec.describe OutputMode::Outputs::Templated do
           field0: dnoces
           field1: ignored
           field2: 
-          field3: 
         repeated: true
         repeated: false
 
@@ -153,7 +115,6 @@ RSpec.describe OutputMode::Outputs::Templated do
           field0: driht
           field1: ignored
           field2: 
-          field3: 
         repeated: true
         repeated: false
       RENDERED
@@ -163,8 +124,7 @@ RSpec.describe OutputMode::Outputs::Templated do
       let(:colorize) { true }
 
       it 'includes the color control characters' do
-        value = " \e[1m*\e[0m \e[32mfirst\e[0m\n  \e[34;1mfield0\e[0m\e[1m:\e[0m \e[32mtsrif\e[0m\n  \e[34;1mfield1\e[0m\e[1m:\e[0m \e[32mignored\e[0m\n  \e[34;1mfield2\e[0m\e[1m:\e[0m \n  \e[34;1mfield3\e[0m\e[1m:\e[0m \n\e[34;1mrepeated\e[0m\e[1m:\e[0m \e[32mtrue\e[0m\n\e[34;1mrepeated\e[0m\e[1m:\e[0m \e[32mfalse\e[0m\n\n \e[1m*\e[0m \e[32msecond\e[0m\n  \e[34;1mfield0\e[0m\e[1m:\e[0m \e[32mdnoces\e[0m\n  \e[34;1mfield1\e[0m\e[1m:\e[0m \e[32mignored\e[0m\n  \e[34;1mfield2\e[0m\e[1m:\e[0m \n  \e[34;1mfield3\e[0m\e[1m:\e[0m \n\e[34;1mrepeated\e[0m\e[1m:\e[0m \e[32mtrue\e[0m\n\e[34;1mrepeated\e[0m\e[1m:\e[0m \e[32mfalse\e[0m\n\n \e[1m*\e[0m \e[32mthird\e[0m\n  \e[34;1mfield0\e[0m\e[1m:\e[0m \e[32mdriht\e[0m\n  \e[34;1mfield1\e[0m\e[1m:\e[0m \e[32mignored\e[0m\n  \e[34;1mfield2\e[0m\e[1m:\e[0m \n  \e[34;1mfield3\e[0m\e[1m:\e[0m \n\e[34;1mrepeated\e[0m\e[1m:\e[0m \e[32mtrue\e[0m\n\e[34;1mrepeated\e[0m\e[1m:\e[0m \e[32mfalse\e[0m\n"
-        expect(subject.render(*data)).to eq(value)
+        expect(subject.render(*data).include?("\e[1m")).to eq(true)
       end
     end
 
@@ -188,11 +148,22 @@ RSpec.describe OutputMode::Outputs::Templated do
         ERB
       end
 
-      let(:sections) { [:section2, :section1, :section2, :skip] }
+      before do
+        subject.callables.each_with_index do |callable, idx|
+          callable.config[:header] = fields[idx]
+          callable.config[:section] = case idx
+          when 0,2
+            :section2
+          when 1
+            :section1
+          else
+            :skip
+          end
+        end
+      end
+
       subject do
-        described_class.new(
-          *procs, sections: sections, template: template_input, fields: fields
-        )
+        described_class.new(*procs, template: template_input)
       end
 
       it 'can be grouped' do

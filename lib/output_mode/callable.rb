@@ -34,7 +34,9 @@ module OutputMode
       @callables = []
       case callables
       when Array, Callables
-        callables.each { |c| @callables << c }
+        callables.each do |c|
+          @callables << (c.is_a?(Callable) ? c : Callable.new(&c))
+        end
       when nil
         # NOOP
       else
@@ -70,14 +72,14 @@ module OutputMode
                   end
           opts.empty? ? field.call(*ctx) : field.call(*ctx, **opts)
         else
-          field.to_s
+          field
         end
       end
 
-      max_length = fields.map(&:length).max
+      max_length = fields.map { |f| f.to_s.length }.max
       pads = self.each_with_index.map do |callable, idx|
         field = fields[idx]
-        length = max_length - field.length
+        length = max_length - field.to_s.length
         [callable, { padding: ' ' * length, field: field }]
       end
 
@@ -98,6 +100,10 @@ module OutputMode
         end
       end
       Callables.new(selected)
+    end
+
+    def length
+      @callables.length
     end
   end
 

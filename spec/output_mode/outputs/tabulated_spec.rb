@@ -70,7 +70,11 @@ RSpec.describe OutputMode::Outputs::Tabulated do
         ['stringify', 'reverse', 'ignore', 'nill', 'empty-string']
       end
 
-      subject { described_class.new(*procs, header: header) }
+      subject { described_class.new(*procs) }
+
+      before do
+        subject.callables.each_with_index { |c, idx| c.config[:header] = header[idx] }
+      end
 
       it 'returns the headers' do
         expect(subject.render(*data)).to eq(<<~TABLE.chomp)
@@ -91,7 +95,14 @@ RSpec.describe OutputMode::Outputs::Tabulated do
       end
 
       subject do
-        described_class.new(*procs, header: header, header_color: [[:blue, :bold]], row_color: [:green, :yellow], colorize: true)
+        described_class.new(*procs, header: header, header_color: [:blue, :bold], row_color: :yellow, colorize: true)
+      end
+
+      before do
+        subject.callables.each_with_index do |callable, idx|
+          callable.config[:row_color] = :green if idx == 0
+          callable.config[:header] = header[idx]
+        end
       end
 
       it 'colorizes the headers and rows' do
@@ -113,7 +124,11 @@ RSpec.describe OutputMode::Outputs::Tabulated do
       end
 
       subject do
-        described_class.new(*procs, header: header, header_color: [[:blue, :bold]], row_color: [:green, :yellow], colorize: false)
+        described_class.new(*procs, header: header, header_color: [:blue, :bold], row_color: [:green], colorize: false)
+      end
+
+      before do
+        subject.callables.each_with_index { |c, idx| c.config[:header] = header[idx] }
       end
 
       it 'does not colorize' do
@@ -180,12 +195,16 @@ RSpec.describe OutputMode::Outputs::Tabulated do
       end
     end
 
-    context 'with an array default' do
+    context 'with defaults' do
       let(:expanded_procs) { procs.dup.tap { |p| p << ->(_) {} } }
-      let(:defaults) { ['skip', 'skip', 'skip', 'nil-column', 'repeat-column'] }
+      let(:defaults) { ['skip', 'skip', 'skip', 'nil-column'] }
 
       subject do
-        described_class.new(*expanded_procs, default: defaults)
+        described_class.new(*expanded_procs, default: 'repeat-column')
+      end
+
+      before do
+        subject.callables.each_with_index { |c, idx| c.config[:default] = defaults[idx] }
       end
 
       it 'replaces on a per column basis with a repeat' do
@@ -201,16 +220,16 @@ RSpec.describe OutputMode::Outputs::Tabulated do
 
     context 'with yes/no flags' do
       subject do
-        described_class.new(*procs_with_bools, yes: 'Yes', no: ['Array-No'])
+        described_class.new(*procs_with_bools, yes: 'Yes', no: 'No')
       end
 
       it 'replaces true/false with either a static or column based value' do
         expect(subject.render(*data)).to eq(<<~TABLE.chomp)
-          ┌──────┬──────┬───────┬┬┬───┬────────┐
-          │first │tsrif │ignored│││Yes│Array-No│
-          │second│dnoces│ignored│││Yes│Array-No│
-          │third │driht │ignored│││Yes│Array-No│
-          └──────┴──────┴───────┴┴┴───┴────────┘
+          ┌──────┬──────┬───────┬┬┬───┬──┐
+          │first │tsrif │ignored│││Yes│No│
+          │second│dnoces│ignored│││Yes│No│
+          │third │driht │ignored│││Yes│No│
+          └──────┴──────┴───────┴┴┴───┴──┘
         TABLE
       end
     end

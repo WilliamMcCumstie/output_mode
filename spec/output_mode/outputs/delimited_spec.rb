@@ -51,9 +51,9 @@ RSpec.describe OutputMode::Outputs::Delimited do
 
       it 'returns the rendered data' do
         expect(subject.render(*data)).to eq(<<~TABLE)
-          first,tsrif,ignored,,"",true,false
-          second,dnoces,ignored,,"",true,false
-          third,driht,ignored,,"",true,false
+          first,tsrif,ignored,,,true,false
+          second,dnoces,ignored,,,true,false
+          third,driht,ignored,,,true,false
         TABLE
       end
 
@@ -77,11 +77,11 @@ RSpec.describe OutputMode::Outputs::Delimited do
 
       it 'passes the options through' do
         expect(subject.render(*custom_data)).to eq([
-          'demo*omed*ignored**""*true*false',
-          '"*"*"*"*ignored**""*true*false',
+          'demo*omed*ignored***true*false',
+          '"*"*"*"*ignored***true*false',
           # The " are literal characters within the heredoc
-          <<~RENDERED_ROW_SEP.chomp,
-            "\r"*"\r"*ignored**""*true*false
+          <<~'RENDERED_ROW_SEP'.chomp,
+            \r*\r*ignored***true*false
           RENDERED_ROW_SEP
           '' # Ends with additional row_sep
         ].join("\r"))

@@ -77,11 +77,16 @@ module OutputMode
 
       private
 
+      def has_header?
+        callables.any? { |c| c.config.key?(:header) }
+      end
+
       # Colorizes the header when requested
       def processed_header
+        return nil unless has_header?
         callables.map do |callable|
           header = callable.config.fetch(:header, '')
-          color = callable.config.fetch(:header_color) || header_color
+          color = callable.config.fetch(:header_color, nil) || header_color
           case color
           when nil
             header.to_s
