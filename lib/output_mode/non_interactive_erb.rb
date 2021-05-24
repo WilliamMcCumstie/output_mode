@@ -27,14 +27,14 @@
 require 'erb'
 
 module OutputMode
-  DEFAULT_ERB = ERB.new(<<~TEMPLATE, nil, '-')
+  NON_INTERACTIVE_ERB = ERB.new(<<~TEMPLATE, nil, '-')
     <% each do |value, field:, padding:, **_| -%>
     <%   if value.nil? && field.nil? -%>
-
+    \t
     <%   elsif field.nil? -%>
-     <%= pastel.bold '*' -%> <%= pastel.green value %>
+    \t<%= value %>
     <%   else -%>
-    <%= padding -%><%= pastel.blue.bold field -%><%= pastel.bold ':' -%> <%= pastel.green value %>
+    <%= field -%>\t<%= value.to_s.dump[1...-1] %>
     <%   end -%>
     <% end -%>
   TEMPLATE

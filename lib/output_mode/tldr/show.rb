@@ -25,6 +25,8 @@
 #==============================================================================
 
 require 'tty-color'
+require 'output_mode/default_erb'
+require 'output_mode/non_interactive_erb'
 
 module OutputMode
   module TLDR
@@ -67,11 +69,15 @@ module OutputMode
       # for consumption by machines. This output ignores the provided +verbose+
       # flag as it is always verbose.
       #
-      # The +template+ overrides the default erb template for the output
+      # The +template+ overrides the default erb template for interactive sessions.
+      # The +non_interactive_template+ overrides the template for non-interactive
+      # sessions.
       #
       # An interative/ non-interactive output can be forced by setting the
       # +interactive+ flag to +true+/+false+ respectively
-      def build_output(verbose: nil, ascii: nil, interactive: nil, template: nil, context: {})
+      def build_output(verbose: nil, ascii: nil, interactive: nil, context: {},
+                       template: OutputMode::DEFAULT_ERB,
+                       non_interactive_template: OutputMode::NON_INTERACTIVE_ERB)
         # Set the interactive and verbose flags if not provided
         interactive = $stdout.tty?  if interactive.nil?
         verbose =     !interactive  if verbose.nil?
@@ -96,28 +102,22 @@ module OutputMode
           callables.reject { |o| o.interactive? }
         end
 
-        if interactive
-          # Creates the human readable output
-          opts =  if ascii
-                    { yes: 'yes', no: 'no', colorize: false }
-                  else
-                    { yes: '✓', no: '✕', colorize: TTY::Color.color? }
-                  end
+        # Define the templating parameters
+        opts =  if ascii && interactive
+                  { yes: 'yes', no: 'no', colorize: false, default: '(none)', template: template }
+                elsif interactive
+                  { yes: '✓', no: '✕', colorize: TTY::Color.color?, default: '(none)', template: template }
+                else
+                  { yes: 'yes', no: 'no', colorize: false, default: '', template: non_interactive_template }
+                end
 
-          sections = callables.map { |o| o.config[:section] }
+        sections = callables.map { |o| o.config[:section] }
 
-          Outputs::Templated.new(*callables,
-                                 fields: callables.map { |c| c.config.fetch(:header, 'missing') },
-                                 default: '(none)',
-                                 sections: sections,
-                                 template: template,
-                                 context: context,
-                                 **opts)
-        else
-          # Creates the machine readable output
-          Outputs::Delimited.new(*callables, col_sep: "\t", yes: 'yes', no: 'no', default: nil,
-                                 context: context)
-        end
+        Outputs::Templated.new(*callables,
+                               fields: callables.map { |c| c.config.fetch(:header, 'missing') },
+                               sections: sections,
+                               context: context,
+                               **opts)
       end
     end
   end
