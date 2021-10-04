@@ -29,28 +29,23 @@ require "bundler/setup"
 require "output_mode"
 require 'erb'
 
-module DemoIndex
-  extend OutputMode::TLDR::Index
-
-  register_callable(header: 'Integer', row_color: [:yellow, :bold]) { |i| i }
-  register_callable(header: 'Standard', header_color: [:strikethrough] ) { 'always visible' }
-  register_callable(header: 'Verbose', verbose: true) { 'verbose visible' }
-  register_callable(header: 'Simplified', verbose: false) { 'simplified visible' }
-  register_callable(header: 'Interactive', interactive: true) { 'interactive visible' }
-  register_callable(header: 'Non Interactive', interactive: false) { 'non-interactive visible' }
-  register_callable(header: 'Yes/True') { true }
-  register_callable(header: 'No/False', row_color: [:clear]) { false }
-  register_callable(header: 'Missing') { nil }
-  register_callable(header: 'Inline') do |interactive:, verbose:|
-    if interactive && verbose
-      'interactive-verbose'
-    elsif interactive
-      'interactive-simplified'
-    elsif verbose
-      'non-interactive-verbose'
+class DemoIndex < OutputMode::Formatters::Index
+  constructor do
+    register(header: 'Integer', row_color: [:yellow, :bold]) { |i| i }
+    register(header: 'Standard', header_color: [:strikethrough] ) { 'always visible' }
+    if verbose?
+      register(header: 'Verbose') { 'verbose visible' }
     else
-      'non-interactive-simplified'
+      register(header: 'Simplified') { 'simplified visible' }
     end
+    if interactive?
+      register(header: 'Interactive') { 'interactive visible' }
+    else
+      register(header: 'Non Interactive') { 'non-interactive visible' }
+    end
+    register(header: 'Yes/True') { true }
+    register(header: 'No/False', row_color: [:clear]) { false }
+    register(header: 'Missing') { nil }
   end
 end
 
@@ -89,34 +84,34 @@ puts <<~EOF
 # Default Demo Index
 # Simplified in interactive shells, verbose in non-interactive
 #==============================================================================
-#{DemoIndex.build_output.render(*data)}
+#{DemoIndex.render(*data)}
 
 #==============================================================================
 # Demo Verbose Index
 #==============================================================================
-#{DemoIndex.build_output(verbose: true).render(*data)}
+#{DemoIndex.render(*data, verbose: true)}
 
 #==============================================================================
 # Demo "Simplified" Index
 #==============================================================================
-#{DemoIndex.build_output(verbose: false).render(*data)}
+#{DemoIndex.render(*data, verbose: false)}
 
 #==============================================================================
 # Force Interactive
 # Always print as if the shell is interactive
 #==============================================================================
-#{DemoIndex.build_output(interactive: true).render(*data)}
+#{DemoIndex.render(*data, interactive: true)}
 
 #==============================================================================
 # Force Non-Interactive
 # Always print as if the shell is non-interactive
 #==============================================================================
-#{DemoIndex.build_output(interactive: false).render(*data)}
+#{DemoIndex.render(*data, interactive: false)}
 
 #==============================================================================
 # Demo ASCII Index
 #==============================================================================
-#{DemoIndex.build_output(ascii: true).render(*data)}
+#{DemoIndex.render(*data, ascii: true)}
 
 #==============================================================================
 #==============================================================================

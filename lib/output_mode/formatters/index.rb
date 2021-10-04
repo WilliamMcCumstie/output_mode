@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright 2020 William McCumstie
+# Copyright 2021 William McCumstie
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,39 +24,40 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'csv'
-
 module OutputMode
-  module Outputs
-    class Delimited < Output
-      # @return [Hash] additional options to CSV.new
-      # @see https://ruby-doc.org/stdlib-2.6.1/libdoc/csv/rdoc/CSV.html
-      def config; super; end
+  module Formatters
+    class Index < Formatter
+      attr_reader :objects
 
-      # Implements the render method using +CSV+
-      #
-      # @see OutputMode::Output#render
-      # @see CSV
-      def render(*data)
-        io = StringIO.new
-        csv = CSV.new(io, **csv_config)
-        data.each do |datum|
-          csv << generate(datum).map do |value|
-            next nil if value.nil?
-            value.to_s.dump[1...-1]
-          end
+      # Limit the policy to a single object
+      def initialize(*objects, **opts)
+        super
+
+        # Handle unicode/ascii differences
+        if interactive? && ascii?
+          attribute :renderer, :ascii
+        elsif interactive?
+          attribute :renderer, :unicode
+          attribute :header_color, [:blue, :bold]
+          attribute :row_color, :green
         end
-        io.tap(&:rewind).read
+
+        # Additional tabulated/ delimited flags
+        if interactive?
+          attribute :rotate, false
+          attribute :padding, [0, 1]
+        else
+          attribute :col_sep, "\t"
+        end
       end
 
-      private
-
-      def csv_config
-        config.dup.tap do |conf|
-          conf.delete(:colorize)
+      def build_output
+        if interactive?
+          Outputs::Tabulated.new(*callables, **attributes)
+        else
+          Outputs::Delimited.new(*callables, **attributes)
         end
       end
     end
   end
 end
-
