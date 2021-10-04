@@ -24,29 +24,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require 'output_mode/default_erb'
-require 'output_mode/non_interactive_erb'
-
 module OutputMode
-  module Policies
-    class Show < Policy
-      # Limit the policy to a single object
-      def initialize(object, **opts)
-        super
-        if interactive?
-          attribute :template, OutputMode::DEFAULT_ERB
-        else
-          attribute :template, OutputMode::NON_INTERACTIVE_ERB
-        end
-      end
+  autoload 'Formatter', File.expand_path('formatter.rb', __dir__)
 
-      def object
-        @objects.first
-      end
-
-      def build_output
-        OutputMode::Outputs::Templated.new(*callables, **attributes)
-      end
+  module Formatters
+    Dir.glob(File.expand_path('formatters/*.rb', __dir__)).each do |path|
+      autoload File.basename(path).chomp('.rb').capitalize, path
     end
   end
 end
+

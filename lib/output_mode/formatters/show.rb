@@ -24,11 +24,29 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
+require 'output_mode/default_erb'
+require 'output_mode/non_interactive_erb'
+
 module OutputMode
-  module Policies
-    Dir.glob(File.expand_path('policies/*.rb', __dir__)).each do |path|
-      autoload File.basename(path).chomp('.rb').capitalize, path
+  module Formatters
+    class Show < Formatter
+      # Limit the policy to a single object
+      def initialize(object, **opts)
+        super
+        if interactive?
+          attribute :template, OutputMode::DEFAULT_ERB
+        else
+          attribute :template, OutputMode::NON_INTERACTIVE_ERB
+        end
+      end
+
+      def object
+        @objects.first
+      end
+
+      def build_output
+        OutputMode::Outputs::Templated.new(*callables, **attributes)
+      end
     end
   end
 end
-

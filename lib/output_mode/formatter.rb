@@ -27,7 +27,7 @@
 require 'tty-color'
 
 module OutputMode
-  class Policy
+  class Formatter
     def self.constructor(&block)
       @constructor ||= block
     end

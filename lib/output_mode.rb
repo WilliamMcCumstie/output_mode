@@ -29,8 +29,7 @@ require 'output_mode/errors'
 
 require 'output_mode/outputs'
 require 'output_mode/callable'
-require 'output_mode/policy'
-require 'output_mode/policies'
+require 'output_mode/formatters'
 require 'output_mode/builder_dsl'
 require 'output_mode/tldr'
 

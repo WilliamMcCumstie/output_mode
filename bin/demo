@@ -54,7 +54,7 @@ module DemoIndex
   end
 end
 
-class DemoShow < OutputMode::Policies::Show
+class DemoShow < OutputMode::Formatters::Show
   constructor do
     register(header: 'Integer') { |i| i }
     register(header: 'Standard') { 'always visible' }

@@ -27,7 +27,7 @@
 require 'spec_helper'
 require 'stringio'
 
-RSpec.describe OutputMode::Policy do
+RSpec.describe OutputMode::Formatter do
   [true, false, nil].repeated_permutation(4).each do |bools|
     interactive = bools[0]
     ascii = bools[1]
