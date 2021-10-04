@@ -54,35 +54,29 @@ module DemoIndex
   end
 end
 
-module DemoShow
-  extend OutputMode::TLDR::Show
-
-  register_callable(header: 'Integer') { |i| i }
-  register_callable(header: 'Standard') { 'always visible' }
-  register_callable(header: 'Verbose', verbose: true) { 'verbose visible' }
-  register_callable(header: 'Simplified', verbose: false) { 'simplified visible' }
-  register_callable(header: 'Interactive', interactive: true) { 'interactive visible' }
-  register_callable(header: 'Non Interactive', interactive: false) { 'non-interactive visible' }
-  register_callable(header: 'Yes/True', section: :boolean) { true }
-  register_callable(header: 'No/False', section: :boolean) { false }
-  register_callable(header: 'Missing') { nil }
-  register_callable(header: 'Tab') { "tab1\ttab2" }
-  register_callable(header: 'New line') { "line1\nline2" }
+class DemoShow < OutputMode::Policies::Show
+  constructor do
+    register(header: 'Integer') { |i| i }
+    register(header: 'Standard') { 'always visible' }
+    if verbose?
+      register(header: 'Verbose') { 'verbose visible' }
+    else
+      register(header: 'Simplified') { 'simplified visible' }
+    end
+    if interactive?
+      register(header: 'Interactive') { 'interactive visible' }
+    else
+      register(header: 'Non Interactive') { 'non-interactive visible' }
+    end
+    register(header: 'Yes/True', section: :boolean) { true }
+    register(header: 'No/False', section: :boolean) { false }
+    register(header: 'Missing') { nil }
+    register(header: 'Tab') { "tab1\ttab2" }
+    register(header: 'New line') { "line1\nline2" }
+  end
 end
 
 data = [1, 2, 3]
-
-other_template = ERB.new(<<~TEMPLATE, nil, '-')
-# Non boolean values
-<% each(:other) do |value, field:, padding:, **_| -%>
-<%= padding -%><%= pastel.blue.bold field -%><%= pastel.bold ':' -%> <%= pastel.green value %>
-<% end -%>
-
-# Boolean Values
-<% each(:boolean) do |value, field:, padding:, **_| -%>
-<%= padding -%><%= pastel.blue.bold field -%><%= pastel.bold ':' -%> <%= pastel.green value %>
-<% end -%>
-TEMPLATE
 
 puts <<~EOF
 #==============================================================================
@@ -134,39 +128,32 @@ puts <<~EOF
 # Default Settings
 # Simplified in interactive shells, verbose in non-interactive
 #==============================================================================
-#{DemoShow.build_output.render(*data)}
+#{DemoShow.render(data.first)}
 
 #==============================================================================
 # Demo Verbose Show
 #==============================================================================
-#{DemoShow.build_output(verbose: true).render(*data)}
+#{DemoShow.render(data.first, verbose: true)}
 
 #==============================================================================
 # Demo "Simplified" Show
 #==============================================================================
-#{DemoShow.build_output(verbose: false).render(*data)}
+#{DemoShow.render(data.first, verbose: false)}
 
 #==============================================================================
 # Force Interactive
 # Always print as if the shell is interactive
 #==============================================================================
-#{DemoShow.build_output(interactive: true).render(*data)}
+#{DemoShow.render(data.first, interactive: true)}
 
 #==============================================================================
 # Force Non-Interactive
 # Always print as if the shell is non-interactive
 #==============================================================================
-#{DemoShow.build_output(interactive: false).render(*data)}
+#{DemoShow.render(data.first, interactive: false)}
 
 #==============================================================================
 # Demo ASCII Index
 #==============================================================================
-#{DemoShow.build_output(ascii: true).render(*data)}
-
-#==============================================================================
-# Group the boolean value separately
-# NOTE: This only occurs in interactive mode
-#       Non-Interactive sessions have a fix order
-#==============================================================================
-#{DemoShow.build_output(template: other_template).render(*data)}
+#{DemoShow.render(data.first, ascii: true)}
 EOF

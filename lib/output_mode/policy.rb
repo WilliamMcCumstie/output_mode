@@ -24,21 +24,81 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
+require 'tty-color'
+
 module OutputMode
   class Policy
-    def initialize(verbose: nil, ascii: nil, interactive: nil, color: nil)
+    def self.constructor(&block)
+      @constructor ||= block
+    end
+
+    def self.build(*objects, **opts)
+      new(*objects, **opts).tap do |policy|
+        next unless constructor
+        policy.instance_exec(&constructor)
+      end
+    end
+
+    def self.render(*objects, **opts)
+      build(*objects, **opts).render
+    end
+
+    def initialize(*objects, verbose: nil, ascii: nil, interactive: nil, color: nil)
       @verbose = verbose
       @ascii = ascii
       @interactive = interactive
       @color = color
+
+      # NOTE: This is intentionally not exposed on the base class
+      #       It is up to the individual implementations to expose it
+      @objects = objects
     end
 
     def attributes
-      @attributes ||= {}
+      {}.tap do |attr|
+        # Determine the yes/no value
+        if interactive? && !ascii?
+          attr[:yes] = '✓'
+          attr[:no]  = '✕'
+        else
+          attr[:yes] = 'yes'
+          attr[:no]  = 'no'
+        end
+
+        # Set the default value
+        if interactive?
+          attr[:default] = '(none)'
+        else
+          attr[:default] = ''
+        end
+
+        # Set the colorization
+        attr[:colorize] = color?
+
+        # Apply the custom attributes
+        attr.merge! @attributes if @attributes
+      end
     end
 
     def attribute(key, value)
-      attributes[key] = value
+      @attributes ||= {}
+      @attributes[key.to_sym] = value
+    end
+
+    def callables
+      @callables ||= Callables.new
+    end
+
+    def register(**config, &b)
+      callables << Callable.new(**config, &b)
+    end
+
+    def build_output
+      raise NotImplementedError
+    end
+
+    def render
+      build_output.render(*@objects)
     end
 
     def interactive?
