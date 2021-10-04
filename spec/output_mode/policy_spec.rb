@@ -27,18 +27,22 @@
 require 'spec_helper'
 
 RSpec.describe OutputMode::Policy do
-  accessor_spec_generator = ->(interactive, ascii, verbose) do
-    msg = "when interactive is #{interactive.to_s}, ascii  is #{ascii.to_s}, and verbose is #{verbose.to_s}"
+  [true, false, nil].repeated_permutation(3).each do |bools|
+    interactive = bools[0]
+    ascii = bools[1]
+    verbose = bools[2]
+
+    interactive_str = interactive.nil? ? 'nil' : interactive.to_s
+    ascii_str = ascii.nil? ? 'nil' : ascii.to_s
+    verbose_str = verbose.nil? ? 'nil' : verbose.to_s
+
+    msg = "when interactive is #{interactive_str}, ascii  is #{ascii_str}, and verbose is #{verbose_str}"
     context(msg) do
       subject { described_class.new(interactive: interactive, verbose: verbose, ascii: ascii) }
 
-      it { is_expected.send(interactive ? :to : :not_to, be_interactive) }
-      it { is_expected.send(ascii ? :to : :not_to, be_ascii) }
-      it { is_expected.send(verbose ? :to : :not_to, be_verbose) }
+      it { is_expected.send(interactive ? :to : :not_to, be_interactive) } unless interactive.nil?
+      it { is_expected.send(ascii ? :to : :not_to, be_ascii) } unless ascii.nil?
+      it { is_expected.send(verbose ? :to : :not_to, be_verbose) } unless verbose.nil?
     end
-  end
-
-  [true, false].repeated_permutation(3).each do |bools|
-    accessor_spec_generator.call(*bools)
   end
 end
