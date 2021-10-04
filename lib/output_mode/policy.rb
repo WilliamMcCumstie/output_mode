@@ -26,10 +26,11 @@
 
 module OutputMode
   class Policy
-    def initialize(verbose: nil, ascii: nil, interactive: nil)
+    def initialize(verbose: nil, ascii: nil, interactive: nil, color: nil)
       @verbose = verbose
       @ascii = ascii
       @interactive = interactive
+      @color = color
     end
 
     def attributes
@@ -45,6 +46,16 @@ module OutputMode
         $stdout.tty?
       else
         @interactive
+      end
+    end
+
+    def color?
+      if @color.nil? && (ascii? || !interactive?)
+        false
+      elsif @color.nil?
+        TTY::Color.color?
+      else
+        @color
       end
     end
 

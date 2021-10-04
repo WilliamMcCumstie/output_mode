@@ -28,18 +28,20 @@ require 'spec_helper'
 require 'stringio'
 
 RSpec.describe OutputMode::Policy do
-  [true, false, nil].repeated_permutation(3).each do |bools|
+  [true, false, nil].repeated_permutation(4).each do |bools|
     interactive = bools[0]
     ascii = bools[1]
     verbose = bools[2]
+    color = bools[3]
 
     interactive_str = interactive.nil? ? 'nil' : interactive.to_s
     ascii_str = ascii.nil? ? 'nil' : ascii.to_s
     verbose_str = verbose.nil? ? 'nil' : verbose.to_s
+    color_str = color.nil? ? 'nil' : color.to_s
 
-    msg = "when interactive is #{interactive_str}, ascii is #{ascii_str}, and verbose is #{verbose_str}"
+    msg = "when interactive is #{interactive_str}, ascii is #{ascii_str}, verbose is #{verbose_str}, and color is #{color_str}"
     context(msg) do
-      subject { described_class.new(interactive: interactive, verbose: verbose, ascii: ascii) }
+      subject { described_class.new(interactive: interactive, verbose: verbose, ascii: ascii, color: color) }
       let(:stdout) { nil }
 
       # Allow stdout to be reset
@@ -56,7 +58,9 @@ RSpec.describe OutputMode::Policy do
       it { is_expected.send(interactive ? :to : :not_to, be_interactive) } unless interactive.nil?
       it { is_expected.send(ascii ? :to : :not_to, be_ascii) } unless ascii.nil?
       it { is_expected.send(verbose ? :to : :not_to, be_verbose) } unless verbose.nil?
+      it { is_expected.send(color ? :to : :not_to, be_color) } unless color.nil?
 
+      # Test the interaction of the color setting
       case interactive
       when NilClass
         context 'when stdout is a tty' do
@@ -84,6 +88,21 @@ RSpec.describe OutputMode::Policy do
       else
         it { should be_ascii } if ascii.nil?
         it { should be_verbose } if verbose.nil?
+      end
+
+      # Test the interaction between ascii/interactive and color
+      if (ascii || interactive == false) && color.nil?
+        it { should_not be_color }
+      elsif color.nil?
+        context 'when TTY::Color responds true to color?' do
+          before { allow(TTY::Color).to receive(:color?).and_return(true) }
+          it { should be_color }
+        end
+
+        context 'when TTY::Color responds false to color?' do
+          before { allow(TTY::Color).to receive(:color?).and_return(false) }
+          it { should_not be_color }
+        end
       end
     end
   end
