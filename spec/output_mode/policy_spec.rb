@@ -87,4 +87,13 @@ RSpec.describe OutputMode::Policy do
       end
     end
   end
+
+  describe '#attribute' do
+    subject { described_class.new }
+
+    it 'sets the key in the attributes' do
+      subject.attribute :foo, 'bar'
+      expect(subject.attributes[:foo]).to eq('bar')
+    end
+  end
 end

@@ -26,10 +26,18 @@
 
 module OutputMode
   class Policy
-    def initialize(verbose:, ascii:, interactive:)
+    def initialize(verbose: nil, ascii: nil, interactive: nil)
       @verbose = verbose
       @ascii = ascii
       @interactive = interactive
+    end
+
+    def attributes
+      @attributes ||= {}
+    end
+
+    def attribute(key, value)
+      attributes[key] = value
     end
 
     def interactive?
