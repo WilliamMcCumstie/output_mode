@@ -33,15 +33,27 @@ module OutputMode
     end
 
     def interactive?
-      @interactive
+      if @interactive.nil?
+        $stdout.tty?
+      else
+        @interactive
+      end
     end
 
     def ascii?
-      @ascii
+      if @ascii.nil?
+        !interactive?
+      else
+        @ascii
+      end
     end
 
     def verbose?
-      @verbose
+      if @verbose.nil?
+        !interactive?
+      else
+        @verbose
+      end
     end
   end
 end

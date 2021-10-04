@@ -25,6 +25,7 @@
 #==============================================================================
 
 require 'spec_helper'
+require 'stringio'
 
 RSpec.describe OutputMode::Policy do
   [true, false, nil].repeated_permutation(3).each do |bools|
@@ -36,13 +37,54 @@ RSpec.describe OutputMode::Policy do
     ascii_str = ascii.nil? ? 'nil' : ascii.to_s
     verbose_str = verbose.nil? ? 'nil' : verbose.to_s
 
-    msg = "when interactive is #{interactive_str}, ascii  is #{ascii_str}, and verbose is #{verbose_str}"
+    msg = "when interactive is #{interactive_str}, ascii is #{ascii_str}, and verbose is #{verbose_str}"
     context(msg) do
       subject { described_class.new(interactive: interactive, verbose: verbose, ascii: ascii) }
+      let(:stdout) { nil }
 
+      # Allow stdout to be reset
+      before(:each) { $stdout = stdout if stdout }
+      around(:each) do |example|
+        begin
+          example.call
+        ensure
+          $stdout = STDOUT
+        end
+      end
+
+      # Generic accessor tests
       it { is_expected.send(interactive ? :to : :not_to, be_interactive) } unless interactive.nil?
       it { is_expected.send(ascii ? :to : :not_to, be_ascii) } unless ascii.nil?
       it { is_expected.send(verbose ? :to : :not_to, be_verbose) } unless verbose.nil?
+
+      case interactive
+      when NilClass
+        context 'when stdout is a tty' do
+          let(:stdout) do
+            StringIO.new.tap { |io| allow(io).to receive(:tty?).and_return(true) }
+          end
+
+          it { should be_interactive }
+          it { should_not be_ascii } if ascii.nil?
+          it { should_not be_verbose } if verbose.nil?
+        end
+
+        context 'when stdout is a tty' do
+          let(:stdout) do
+            StringIO.new.tap { |io| allow(io).to receive(:tty?).and_return(false) }
+          end
+
+          it { should_not be_interactive }
+          it { should be_ascii } if ascii.nil?
+          it { should be_verbose } if verbose.nil?
+        end
+      when TrueClass
+        it { should_not be_ascii } if ascii.nil?
+        it { should_not be_verbose } if verbose.nil?
+      else
+        it { should be_ascii } if ascii.nil?
+        it { should be_verbose } if verbose.nil?
+      end
     end
   end
 end
