@@ -197,6 +197,22 @@ module OutputMode
       callable.call(*a)
     end
 
+    def formatter(yes:, no:, default:)
+      ->(*a) do
+        raw = call(*a)
+        if raw == true
+          yes
+        elsif raw == false
+          no
+        elsif raw == nil
+          default
+        else
+          raw
+        end
+      end
+    end
+
+    # DEPRECATED: Use the formatter method
     def generator(output)
       ->(*a) do
         # Implicitly determine which parts of the context can be passed through

@@ -86,7 +86,8 @@ module OutputMode
       # @!attribute [r] fields
       # @!attribute [r] colorize
       # @!attribute [r] sections
-      attr_reader :erb, :fields, :separator, :colorize, :sections
+      # @!attribute [r] bind
+      attr_reader :erb, :fields, :separator, :colorize, :sections, :bind
 
       # Create a new +output+ which will render using +ERB+. The provided +template+ should
       # only render the +output+ for a single +entry+ (aka model, record, data object, etc).
@@ -108,6 +109,7 @@ module OutputMode
       #   @param separator: The character(s) used to join the "entries" together
       #   @param colorize: Flags if the caller wants the colorized version, this maybe ignored by +template+
       #   @param sections: DEPRECATED An optional array that groups the procs into sections
+      #   @param bind: An optional execution context to render the template within
       #   @param [Hash] **config see {OutputMode::Output#initialize}
       def initialize(*procs,
                      template: nil,
@@ -115,6 +117,7 @@ module OutputMode
                      separator: "\n",
                      colorize: false,
                      sections: nil,
+                     bind: nil,
                      **config)
         @erb = case template
         when String
@@ -128,6 +131,7 @@ module OutputMode
         @separator = separator
         @colorize = colorize
         @sections = sections
+        @bind = bind
         super(*procs, **config)
       end
 
@@ -137,8 +141,13 @@ module OutputMode
       #
       # @see OutputMode::Output#render
       def render(*data)
-        data.map { |d| Entry.new(self, d, colorize).render(erb) }
-            .join(separator)
+        data.map do |datum|
+          if bind
+            erb.result(bind)
+          else
+            Entry.new(self, datum, colorize).render(erb)
+          end
+        end.join(separator)
       end
 
       # Returns the length of the maximum field

@@ -30,6 +30,8 @@ require 'output_mode/non_interactive_erb'
 module OutputMode
   module Formatters
     class Show < Formatter
+      include Enumerable
+
       # Limit the policy to a single object
       def initialize(object, **opts)
         super
@@ -40,7 +42,38 @@ module OutputMode
       end
 
       def build_output
-        OutputMode::Outputs::Templated.new(*callables, **attributes)
+        bind = self.instance_exec { binding }
+        OutputMode::Outputs::Templated.new(*callables, **attributes, bind: bind)
+      end
+
+      # @yieldparam value An attribute to be rendered
+      # @yieldparam field: An optional field header for the value
+      # @yieldparam padding: A padding string which will right align the +field+
+      # @yieldparam **config TBA
+      def each(section = nil, &block)
+        # Select the callable objects
+        selected = if section == nil
+                     callables
+                   elsif section == :default
+                     callables.config_select(:section, :default, nil)
+                   else
+                     callables.config_select(:section, section)
+                   end
+
+        # Yield each selected attribute
+        objs = selected.pad_each(object).map do |callable, padding:, field:|
+          value = callable.formatter(**attributes.slice(:yes, :no, :default)).call(object)
+          [value, { field: field, padding: padding }]
+        end
+
+        # Runs the provided block
+        objs.each(&block)
+      end
+
+      # Library for colorizing the output. It is automatically disabled when the
+      # +colorize+ flag is +false+
+      def pastel
+        @pastel ||= Pastel.new(enabled: color?)
       end
 
       private
