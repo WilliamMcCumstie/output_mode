@@ -48,6 +48,7 @@ module OutputMode
       @ascii = ascii
       @interactive = interactive
       @color = color
+      @user_attributes = {}
 
       # NOTE: This is intentionally not exposed on the base class
       #       It is up to the individual implementations to expose it
@@ -55,34 +56,11 @@ module OutputMode
     end
 
     def attributes
-      {}.tap do |attr|
-        # Determine the yes/no value
-        if interactive? && !ascii?
-          attr[:yes] = '✓'
-          attr[:no]  = '✕'
-        else
-          attr[:yes] = 'yes'
-          attr[:no]  = 'no'
-        end
-
-        # Set the default value
-        if interactive?
-          attr[:default] = '(none)'
-        else
-          attr[:default] = ''
-        end
-
-        # Set the colorization
-        attr[:colorize] = color?
-
-        # Apply the custom attributes
-        attr.merge! @attributes if @attributes
-      end
+      inbuilt_attributes.merge(@user_attributes)
     end
 
     def attribute(key, value)
-      @attributes ||= {}
-      @attributes[key.to_sym] = value
+      @user_attributes[key.to_sym] = value
     end
 
     def callables
@@ -132,6 +110,31 @@ module OutputMode
         !interactive?
       else
         @verbose
+      end
+    end
+
+    private
+
+    def inbuilt_attributes
+      {}.tap do |attr|
+        # Determine the yes/no value
+        if interactive? && !ascii?
+          attr[:yes] = '✓'
+          attr[:no]  = '✕'
+        else
+          attr[:yes] = 'yes'
+          attr[:no]  = 'no'
+        end
+
+        # Set the default value
+        if interactive?
+          attr[:default] = '(none)'
+        else
+          attr[:default] = ''
+        end
+
+        # Set the colorization
+        attr[:colorize] = color?
       end
     end
   end

@@ -104,10 +104,10 @@ module OutputMode
       #   @param [Array] *procs see {OutputMode::Output#initialize}
       #   @param [ERB] template: The +template+ object used by the renderer
       #   @param [Array] fields: An optional array of field headers that map to the procs, repeating the last value if required
-      #   @param fields: A static value to use as all field headers
+      #   @param fields: DEPRECATED A static value to use as all field headers
       #   @param separator: The character(s) used to join the "entries" together
       #   @param colorize: Flags if the caller wants the colorized version, this maybe ignored by +template+
-      #   @param sections: An optional array that groups the procs into sections. This is ignored by default
+      #   @param sections: DEPRECATED An optional array that groups the procs into sections
       #   @param [Hash] **config see {OutputMode::Output#initialize}
       def initialize(*procs,
                      template: nil,
@@ -142,6 +142,7 @@ module OutputMode
       end
 
       # Returns the length of the maximum field
+      # DEPRECATED
       def max_field_length
         if fields.is_a? Array
           fields.map { |f| f.to_s.length }.max

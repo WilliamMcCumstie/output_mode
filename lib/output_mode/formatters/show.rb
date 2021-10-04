@@ -33,11 +33,6 @@ module OutputMode
       # Limit the policy to a single object
       def initialize(object, **opts)
         super
-        if interactive?
-          attribute :template, OutputMode::DEFAULT_ERB
-        else
-          attribute :template, OutputMode::NON_INTERACTIVE_ERB
-        end
       end
 
       def object
@@ -46,6 +41,19 @@ module OutputMode
 
       def build_output
         OutputMode::Outputs::Templated.new(*callables, **attributes)
+      end
+
+      private
+
+      def inbuilt_attributes
+        additional = {}.tap do |hash|
+          if interactive?
+            hash[:template] = DEFAULT_ERB
+          else
+            hash[:template] = NON_INTERACTIVE_ERB
+          end
+        end
+        super().merge(additional)
       end
     end
   end

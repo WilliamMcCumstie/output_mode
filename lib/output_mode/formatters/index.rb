@@ -32,23 +32,6 @@ module OutputMode
       # Limit the policy to a single object
       def initialize(*objects, **opts)
         super
-
-        # Handle unicode/ascii differences
-        if interactive? && ascii?
-          attribute :renderer, :ascii
-        elsif interactive?
-          attribute :renderer, :unicode
-          attribute :header_color, [:blue, :bold]
-          attribute :row_color, :green
-        end
-
-        # Additional tabulated/ delimited flags
-        if interactive?
-          attribute :rotate, false
-          attribute :padding, [0, 1]
-        else
-          attribute :col_sep, "\t"
-        end
       end
 
       def build_output
@@ -57,6 +40,31 @@ module OutputMode
         else
           Outputs::Delimited.new(*callables, **attributes)
         end
+      end
+
+      private
+
+      def inbuilt_attributes
+        additional= {}.tap do |hash|
+          # Handle unicode/ascii differences
+          if interactive? && ascii?
+            hash[:renderer] = :ascii
+          elsif interactive?
+            hash[:renderer] = :unicode
+            hash[:header_color] = [:blue, :bold]
+            hash[:row_color] = :green
+          end
+
+          # Additional tabulated/ delimited flags
+          if interactive?
+            hash[:rotate] = false
+            hash[:padding] = [0, 1]
+          else
+            hash[:col_sep] ="\t"
+          end
+        end
+
+        super().merge(additional)
       end
     end
   end
