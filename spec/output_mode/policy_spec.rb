@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright 2020 William McCumstie
+# Copyright 2021 William McCumstie
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,13 +24,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require "output_mode/version"
-require 'output_mode/errors'
+require 'spec_helper'
 
-require 'output_mode/outputs'
-require 'output_mode/callable'
-require 'output_mode/policy'
-require 'output_mode/policies'
-require 'output_mode/builder_dsl'
-require 'output_mode/tldr'
+RSpec.describe OutputMode::Policy do
+  accessor_spec_generator = ->(interactive, ascii, verbose) do
+    msg = "when interactive is #{interactive.to_s}, ascii  is #{ascii.to_s}, and verbose is #{verbose.to_s}"
+    context(msg) do
+      subject { described_class.new(interactive: interactive, verbose: verbose, ascii: ascii) }
 
+      it { is_expected.send(interactive ? :to : :not_to, be_interactive) }
+      it { is_expected.send(ascii ? :to : :not_to, be_ascii) }
+      it { is_expected.send(verbose ? :to : :not_to, be_verbose) }
+    end
+  end
+
+  [true, false].repeated_permutation(3).each do |bools|
+    accessor_spec_generator.call(*bools)
+  end
+end

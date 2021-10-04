@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright 2020 William McCumstie
+# Copyright 2021 William McCumstie
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,13 +24,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require "output_mode/version"
-require 'output_mode/errors'
-
-require 'output_mode/outputs'
-require 'output_mode/callable'
-require 'output_mode/policy'
-require 'output_mode/policies'
-require 'output_mode/builder_dsl'
-require 'output_mode/tldr'
+module OutputMode
+  module Outputs
+    Dir.glob(File.expand_path('policies/*.rb', __dir__)).each do |path|
+      autoload File.basename(path).chomp('.rb').capitalize, path
+    end
+  end
+end
 

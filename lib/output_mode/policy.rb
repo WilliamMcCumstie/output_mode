@@ -1,5 +1,5 @@
 #==============================================================================
-# Copyright 2020 William McCumstie
+# Copyright 2021 William McCumstie
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -24,13 +24,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-require "output_mode/version"
-require 'output_mode/errors'
+module OutputMode
+  class Policy
+    def initialize(verbose:, ascii:, interactive:)
+      @verbose = verbose
+      @ascii = ascii
+      @interactive = interactive
+    end
 
-require 'output_mode/outputs'
-require 'output_mode/callable'
-require 'output_mode/policy'
-require 'output_mode/policies'
-require 'output_mode/builder_dsl'
-require 'output_mode/tldr'
+    def interactive?
+      @interactive
+    end
 
+    def ascii?
+      @ascii
+    end
+
+    def verbose?
+      @verbose
+    end
+  end
+end
