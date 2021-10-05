@@ -55,7 +55,9 @@ module OutputMode
           end
 
           # Runs the provided block
-          objs.each(&block)
+          objs.each do |model, opts|
+            block.call(model, **opts)
+          end
         end
 
         # Renders an ERB object within the entry's context. This provides access to the

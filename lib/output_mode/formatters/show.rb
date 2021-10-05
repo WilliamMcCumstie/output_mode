@@ -76,7 +76,9 @@ module OutputMode
         end
 
         # Runs the provided block
-        objs.each(&block)
+        objs.each do |model, opts|
+          block.call(model, **opts)
+        end
       end
 
       # Library for colorizing the output. It is automatically disabled when the
