@@ -46,11 +46,16 @@ module OutputMode
         @template ? @template : (interactive? ? DEFAULT_ERB : NON_INTERACTIVE_ERB)
       end
 
+      def scope(value = nil)
+        @scope = value unless value.nil?
+        @scope ? @scope : self
+      end
+
       def build_output
         opts = {
           template: template,
           colorize: color?,
-          bind: self.instance_exec { binding }
+          bind: scope.instance_exec { binding }
         }
         OutputMode::Outputs::Templated.new(*callables, **opts)
       end
