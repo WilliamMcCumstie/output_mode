@@ -151,17 +151,32 @@ RSpec.describe OutputMode::Formatter do
       it "should equal yes" do
         expect(subject.yes).to eq('yes')
       end
+
+      it 'wraps registered callables which return true' do
+        subject.register { true }
+        expect(subject.callables.first.call).to eq('yes')
+      end
     end
 
     describe '#no' do
       it "should equal no" do
         expect(subject.no).to eq('no')
       end
+
+      it 'wraps registered callables which return false' do
+        subject.register { false }
+        expect(subject.callables.first.call).to eq('no')
+      end
     end
 
     describe '#default' do
       it "should equal (none)" do
         expect(subject.default).to eq('(none)')
+      end
+
+      it 'wraps registered callables which return nil' do
+        subject.register { nil }
+        expect(subject.callables.first.call).to eq('(none)')
       end
     end
   end
