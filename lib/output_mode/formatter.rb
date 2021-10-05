@@ -144,22 +144,6 @@ module OutputMode
 
     def inbuilt_attributes
       {}.tap do |attr|
-        # Determine the yes/no value
-        if interactive? && !ascii?
-          attr[:yes] = '✓'
-          attr[:no]  = '✕'
-        else
-          attr[:yes] = 'yes'
-          attr[:no]  = 'no'
-        end
-
-        # Set the default value
-        if interactive?
-          attr[:default] = '(none)'
-        else
-          attr[:default] = ''
-        end
-
         # Set the colorization
         attr[:colorize] = color?
       end
