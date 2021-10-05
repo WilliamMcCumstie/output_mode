@@ -62,7 +62,7 @@ module OutputMode
 
         # Yield each selected attribute
         objs = selected.pad_each(object).map do |callable, padding:, field:|
-          value = callable.formatter(**attributes.slice(:yes, :no, :default)).call(object)
+          value = callable.call(object)
           [value, { field: field, padding: padding }]
         end
 
