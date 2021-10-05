@@ -151,6 +151,19 @@ RSpec.describe OutputMode::Formatter do
         expect(subject.callables.first.call).to eq(value)
       end
     end
+
+    describe '#time' do
+      it 'can be overridden' do
+        value = '%m:%d:%y'
+        subject.time value
+        expect(subject.time).to eq(value)
+      end
+
+      it 'can be overridden by the callable' do
+        subject.register(time: "%m:%d:%y") { Time.mktime(2001, 2, 3) }
+        expect(subject.callables.first.call).to eq("02:03:01")
+      end
+    end
   end
 
   context 'with a verbose formatter' do

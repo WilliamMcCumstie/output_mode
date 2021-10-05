@@ -69,11 +69,8 @@ module OutputMode
         when NilClass
           config[:default] || default
         when Time
-          if verbose?
-            raw.strftime("%Y-%m-%dT%H:%M:%S%:z")
-          else
-            raw.strftime("%d/%m/%y %H:%M")
-          end
+          format = config[:time] || time
+          raw.strftime(format)
         else
           raw
         end
@@ -135,6 +132,11 @@ module OutputMode
     def default(value = nil)
       @default = value unless value.nil?
       @default ? @default : (interactive? ? '(none)' : '')
+    end
+
+    def time(value = nil)
+      @time = value unless value.nil?
+      @time ? @time : (verbose? ? "%Y-%m-%dT%H:%M:%S%:z" : "%d/%m/%y %H:%M")
     end
   end
 end
