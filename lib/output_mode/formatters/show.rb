@@ -41,9 +41,14 @@ module OutputMode
         @objects.first
       end
 
+      def template(value = nil)
+        @template = value unless value.nil?
+        @template ? @template : (interactive? ? DEFAULT_ERB : NON_INTERACTIVE_ERB)
+      end
+
       def build_output
         opts = {
-          template: interactive? ? DEFAULT_ERB : NON_INTERACTIVE_ERB,
+          template: template,
           colorize: color?,
           bind: self.instance_exec { binding }
         }
