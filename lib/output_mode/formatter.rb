@@ -109,16 +109,19 @@ module OutputMode
       end
     end
 
-    def yes
-      ascii? ? 'yes' : '✓'
+    def yes(value = nil)
+      @yes = value unless value.nil?
+      @yes ? @yes : (ascii? ? 'yes' : '✓')
     end
 
-    def no
-      ascii? ? 'no' : '✕'
+    def no(value = nil)
+      @no = value unless value.nil?
+      @no ? @no : (ascii? ? 'no' : '✕')
     end
 
-    def default
-      interactive? ? '(none)' : ''
+    def default(value = nil)
+      @default = value unless value.nil?
+      @default ? @default : (interactive? ? '(none)' : '')
     end
 
     private

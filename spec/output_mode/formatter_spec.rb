@@ -116,6 +116,34 @@ RSpec.describe OutputMode::Formatter do
     end
   end
 
+  context 'with a formatter' do
+    subject { described_class.new }
+
+    describe '#yes' do
+      it 'can be overridden' do
+        value = "foo-yes"
+        subject.yes value
+        expect(subject.yes).to eq(value)
+      end
+    end
+
+    describe '#no' do
+      it 'can be overridden' do
+        value = 'foo-no'
+        subject.no value
+        expect(subject.no).to eq(value)
+      end
+    end
+
+    describe '#default' do
+      it 'can be overridden' do
+        value = 'foo-default'
+        subject.default value
+        expect(subject.default).to eq(value)
+      end
+    end
+  end
+
   context 'with an interactive ascii formatter' do
     subject { described_class.new(interactive: true, ascii: true) }
 
