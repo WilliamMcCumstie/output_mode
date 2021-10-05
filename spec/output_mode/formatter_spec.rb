@@ -153,6 +153,32 @@ RSpec.describe OutputMode::Formatter do
     end
   end
 
+  context 'with a verbose formatter' do
+    subject { described_class.new(verbose: true) }
+
+    context 'when a callable returns a Time object' do
+      let(:time) { Time.new(0) }
+      before { subject.register { time } }
+
+      it 'is converted into RFC3339 format' do
+        expect(subject.callables.first.call).to eq("0000-01-01T00:00:00+00:00")
+      end
+    end
+  end
+
+  context 'with a non-verbose formatter' do
+    subject { described_class.new(verbose: false) }
+
+    context 'when a callable returns a Time object' do
+      let(:time) { Time.new(0) }
+      before { subject.register { time } }
+
+      it 'is converted into a simplified format' do
+        expect(subject.callables.first.call).to eq("01/01/00 00:00")
+      end
+    end
+  end
+
   context 'with an interactive ascii formatter' do
     subject { described_class.new(interactive: true, ascii: true) }
 

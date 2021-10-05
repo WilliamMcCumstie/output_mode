@@ -68,6 +68,12 @@ module OutputMode
           config[:no] || no
         when NilClass
           config[:default] || default
+        when Time
+          if verbose?
+            raw.strftime("%Y-%m-%dT%H:%M:%S%:z")
+          else
+            raw.strftime("%d/%m/%y %H:%M")
+          end
         else
           raw
         end
