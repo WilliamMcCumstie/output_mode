@@ -39,7 +39,7 @@ module OutputMode
       # @see CSV
       def render(*data)
         io = StringIO.new
-        csv = CSV.new(io, **csv_config)
+        csv = CSV.new(io, **config)
         data.each do |datum|
           csv << generate(datum).map do |value|
             next nil if value.nil?
@@ -47,14 +47,6 @@ module OutputMode
           end
         end
         io.tap(&:rewind).read
-      end
-
-      private
-
-      def csv_config
-        config.dup.tap do |conf|
-          conf.delete(:colorize)
-        end
       end
     end
   end

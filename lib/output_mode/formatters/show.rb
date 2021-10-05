@@ -42,8 +42,12 @@ module OutputMode
       end
 
       def build_output
-        bind = self.instance_exec { binding }
-        OutputMode::Outputs::Templated.new(*callables, **attributes, bind: bind)
+        opts = {
+          template: interactive? ? DEFAULT_ERB : NON_INTERACTIVE_ERB,
+          colorize: color?,
+          bind: self.instance_exec { binding }
+        }
+        OutputMode::Outputs::Templated.new(*callables, **opts)
       end
 
       # @yieldparam value An attribute to be rendered
@@ -74,19 +78,6 @@ module OutputMode
       # +colorize+ flag is +false+
       def pastel
         @pastel ||= Pastel.new(enabled: color?)
-      end
-
-      private
-
-      def inbuilt_attributes
-        additional = {}.tap do |hash|
-          if interactive?
-            hash[:template] = DEFAULT_ERB
-          else
-            hash[:template] = NON_INTERACTIVE_ERB
-          end
-        end
-        super().merge(additional)
       end
     end
   end

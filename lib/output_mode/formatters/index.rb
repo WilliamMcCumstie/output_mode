@@ -29,42 +29,20 @@ module OutputMode
     class Index < Formatter
       attr_reader :objects
 
-      # Limit the policy to a single object
-      def initialize(*objects, **opts)
-        super
-      end
-
       def build_output
         if interactive?
-          Outputs::Tabulated.new(*callables, **attributes)
+          opts = {
+            renderer: ascii? ? :ascii : :unicode,
+            header_color: [:blue, :bold],
+            row_color: :green,
+            colorize: color?,
+            rotate: false,
+            padding: [0, 1]
+          }
+          Outputs::Tabulated.new(*callables, **opts)
         else
-          Outputs::Delimited.new(*callables, **attributes)
+          Outputs::Delimited.new(*callables, col_sep: "\t")
         end
-      end
-
-      private
-
-      def inbuilt_attributes
-        additional= {}.tap do |hash|
-          # Handle unicode/ascii differences
-          if interactive? && ascii?
-            hash[:renderer] = :ascii
-          elsif interactive?
-            hash[:renderer] = :unicode
-            hash[:header_color] = [:blue, :bold]
-            hash[:row_color] = :green
-          end
-
-          # Additional tabulated/ delimited flags
-          if interactive?
-            hash[:rotate] = false
-            hash[:padding] = [0, 1]
-          else
-            hash[:col_sep] ="\t"
-          end
-        end
-
-        super().merge(additional)
       end
     end
   end

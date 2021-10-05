@@ -48,19 +48,10 @@ module OutputMode
       @ascii = ascii
       @interactive = interactive
       @color = color
-      @user_attributes = {}
 
       # NOTE: This is intentionally not exposed on the base class
       #       It is up to the individual implementations to expose it
       @objects = objects
-    end
-
-    def attributes
-      inbuilt_attributes.merge(@user_attributes)
-    end
-
-    def attribute(key, value)
-      @user_attributes[key.to_sym] = value
     end
 
     def callables
@@ -138,15 +129,6 @@ module OutputMode
     def default(value = nil)
       @default = value unless value.nil?
       @default ? @default : (interactive? ? '(none)' : '')
-    end
-
-    private
-
-    def inbuilt_attributes
-      {}.tap do |attr|
-        # Set the colorization
-        attr[:colorize] = color?
-      end
     end
   end
 end
