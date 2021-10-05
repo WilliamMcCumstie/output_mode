@@ -31,12 +31,12 @@ module OutputMode
 
       def header_color(value = nil)
         @header_color = value unless value.nil?
-        @header_color ? @header_color : [:blue, :bold]
+        @header_color ? @header_color : :bold
       end
 
       def row_color(value = nil)
         @row_color = value unless value.nil?
-        @row_color ? @row_color : :green
+        @row_color ? @row_color : :cyan
       end
 
       def build_output
