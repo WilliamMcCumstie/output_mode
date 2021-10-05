@@ -24,36 +24,27 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #==============================================================================
 
-module OutputMode
-  module Formatters
-    class Index < Formatter
-      attr_reader :objects
+require 'spec_helper'
 
-      def header_color(value = nil)
-        @header_color = value unless value.nil?
-        @header_color ? @header_color : [:blue, :bold]
+RSpec.describe OutputMode::Formatters::Index do
+  context 'with a formatter' do
+    subject { described_class.new('foo-text') }
+
+    describe '#header_color' do
+      it 'can be overridden' do
+        value = :foo
+        subject.header_color value
+        expect(subject.header_color).to eq(value)
       end
+    end
 
-      def row_color(value = nil)
-        @row_color = value unless value.nil?
-        @row_color ? @row_color : :green
-      end
-
-      def build_output
-        if interactive?
-          opts = {
-            renderer: ascii? ? :ascii : :unicode,
-            header_color: header_color,
-            row_color: row_color,
-            colorize: color?,
-            rotate: false,
-            padding: [0, 1]
-          }
-          Outputs::Tabulated.new(*callables, **opts)
-        else
-          Outputs::Delimited.new(*callables, col_sep: "\t")
-        end
+    describe '#header_color' do
+      it 'can be overridden' do
+        value = :bar
+        subject.row_color value
+        expect(subject.row_color).to eq(value)
       end
     end
   end
 end
+
