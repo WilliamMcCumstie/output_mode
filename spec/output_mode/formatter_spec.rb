@@ -116,6 +116,12 @@ RSpec.describe OutputMode::Formatter do
         subject.yes value
         expect(subject.yes).to eq(value)
       end
+
+      it 'can be overridden by the callable' do
+        value = 'callable-yes'
+        subject.register(yes: value) { true }
+        expect(subject.callables.first.call).to eq(value)
+      end
     end
 
     describe '#no' do
@@ -124,6 +130,12 @@ RSpec.describe OutputMode::Formatter do
         subject.no value
         expect(subject.no).to eq(value)
       end
+
+      it 'can be overridden by the callable' do
+        value = 'callable-no'
+        subject.register(no: value) { false }
+        expect(subject.callables.first.call).to eq(value)
+      end
     end
 
     describe '#default' do
@@ -131,6 +143,12 @@ RSpec.describe OutputMode::Formatter do
         value = 'foo-default'
         subject.default value
         expect(subject.default).to eq(value)
+      end
+
+      it 'can be overridden by the callable' do
+        value = 'callable-default'
+        subject.register(default: value) { nil }
+        expect(subject.callables.first.call).to eq(value)
       end
     end
   end

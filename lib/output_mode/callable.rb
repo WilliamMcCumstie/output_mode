@@ -141,6 +141,8 @@ module OutputMode
 
     # Handles the dynamic +<query>?+ and +<explicit-negation>!+ methods
     #
+    # DEPRECATED: The explicit! negation operator should not be used
+    #
     # @return [Boolean] The result of the query or explicit-negation
     # @raise [NoMethodError] All other method calls
     def method_missing(s, *args, &b)

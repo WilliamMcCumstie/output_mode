@@ -63,11 +63,11 @@ module OutputMode
         raw = block.call(*args, **opts)
         case raw
         when TrueClass
-          yes
+          config[:yes] || yes
         when FalseClass
-          no
+          config[:no] || no
         when NilClass
-          default
+          config[:default] || default
         else
           raw
         end
