@@ -58,7 +58,7 @@ module OutputMode
       @callables.each(&block)
     end
 
-    def pad_each(*ctx, **input_opts)
+    def pad_each(*ctx, **input_opts, &block)
       fields = self.map do |callables|
         field = callables.config[:header]
         if field.respond_to?(:call)
@@ -83,11 +83,14 @@ module OutputMode
         [callable, { padding: ' ' * length, field: field }]
       end
 
-      if block_given?
-        pads.each { |c, opts|  yield(c, **opts) }
-      else
-        pads.each
+      # Generate an enum
+      # NOTE: This fixes the double splate deprecation warning
+      enum = Enumerator.new do |yielder|
+        pads.each do |callable, opts|
+          yielder.yield(callable, **opts)
+        end
       end
+      enum.each(&block)
     end
 
     def config_select(key, *values)

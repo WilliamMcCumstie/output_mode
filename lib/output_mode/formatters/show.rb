@@ -70,7 +70,9 @@ module OutputMode
                    end
 
         # Yield each selected attribute
-        objs = selected.pad_each(object).map do |callable, padding:, field:|
+        objs = selected.pad_each(object).map do |callable, opts|
+          field = opts[:field]
+          padding = opts[:padding]
           value = callable.call(object)
           [value, { field: field, padding: padding }]
         end
