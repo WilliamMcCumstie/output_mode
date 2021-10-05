@@ -60,20 +60,24 @@ module OutputMode
 
     def register(**config, &block)
       callables << Callable.new(**config) do |*args, **opts|
-        raw = block.call(*args, **opts)
-        case raw
-        when TrueClass
-          config[:yes] || yes
-        when FalseClass
-          config[:no] || no
-        when NilClass
-          config[:default] || default
-        when Time
-          format = config[:time] || time
-          raw.strftime(format)
-        else
-          raw
-        end
+        value = block.call(*args, **opts)
+        format(value, **config)
+      end
+    end
+
+    def format(value, **config)
+      case value
+      when TrueClass
+        config[:yes] || yes
+      when FalseClass
+        config[:no] || no
+      when NilClass
+        config[:default] || default
+      when Time
+        format = config[:time] || time
+        value.strftime(format)
+      else
+        value
       end
     end
 
