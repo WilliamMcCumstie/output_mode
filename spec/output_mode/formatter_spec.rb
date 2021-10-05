@@ -115,4 +115,70 @@ RSpec.describe OutputMode::Formatter do
       expect(subject.attributes[:foo]).to eq('bar')
     end
   end
+
+  context 'with an interactive ascii formatter' do
+    subject { described_class.new(interactive: true, ascii: true) }
+
+    describe '#yes' do
+      it "should equal yes" do
+        expect(subject.yes).to eq('yes')
+      end
+    end
+
+    describe '#no' do
+      it "should equal no" do
+        expect(subject.no).to eq('no')
+      end
+    end
+
+    describe '#default' do
+      it "should equal (none)" do
+        expect(subject.default).to eq('(none)')
+      end
+    end
+  end
+
+  context 'with an interactive non-ascii formatter' do
+    subject { described_class.new(interactive: true, ascii: false) }
+
+    describe '#yes' do
+      it "should equal ✓" do
+        expect(subject.yes).to eq('✓')
+      end
+    end
+
+    describe '#no' do
+      it "should equal ✕" do
+        expect(subject.no).to eq('✕')
+      end
+    end
+
+    describe '#default' do
+      it "should equal (none)" do
+        expect(subject.default).to eq('(none)')
+      end
+    end
+  end
+
+  context 'with an non-interactive formatter' do
+    subject { described_class.new(interactive: false) }
+
+    describe '#yes' do
+      it "should equal yes" do
+        expect(subject.yes).to eq('yes')
+      end
+    end
+
+    describe '#no' do
+      it "should equal no" do
+        expect(subject.no).to eq('no')
+      end
+    end
+
+    describe '#default' do
+      it "should be empty string" do
+        expect(subject.default).to eq('')
+      end
+    end
+  end
 end

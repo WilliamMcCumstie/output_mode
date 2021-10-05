@@ -63,10 +63,6 @@ module OutputMode
       @user_attributes[key.to_sym] = value
     end
 
-    def callables
-      @callables ||= Callables.new
-    end
-
     def register(**config, &b)
       callables << Callable.new(**config, &b)
     end
@@ -113,7 +109,23 @@ module OutputMode
       end
     end
 
+    def yes
+      ascii? ? 'yes' : '✓'
+    end
+
+    def no
+      ascii? ? 'no' : '✕'
+    end
+
+    def default
+      interactive? ? '(none)' : ''
+    end
+
     private
+
+    def callables
+      @callables ||= Callables.new
+    end
 
     def inbuilt_attributes
       {}.tap do |attr|
