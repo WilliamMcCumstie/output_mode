@@ -28,15 +28,8 @@ require 'tty-color'
 
 module OutputMode
   class Formatter
-    def self.constructor(&block)
-      @constructor ||= block
-    end
-
     def self.build(*objects, **opts)
-      new(*objects, **opts).tap do |policy|
-        next unless constructor
-        policy.instance_exec(&constructor)
-      end
+      new(*objects, **opts).tap(&:register_all)
     end
 
     def self.render(*objects, **opts)
@@ -52,6 +45,10 @@ module OutputMode
       # NOTE: This is intentionally not exposed on the base class
       #       It is up to the individual implementations to expose it
       @objects = objects
+    end
+
+    # Override in sub-classes to define the attributes
+    def register_all
     end
 
     def callables

@@ -30,7 +30,7 @@ require "output_mode"
 require 'erb'
 
 class DemoIndex < OutputMode::Formatters::Index
-  constructor do
+  def register_all
     register(header: 'Integer', row_color: [:yellow, :bold]) { |i| i }
     register(header: 'Standard', header_color: [:strikethrough] ) { 'always visible' }
     if verbose?
@@ -50,7 +50,7 @@ class DemoIndex < OutputMode::Formatters::Index
 end
 
 class DemoShow < OutputMode::Formatters::Show
-  constructor do
+  def register_all
     register(header: 'Integer') { |i| i }
     register(header: 'Standard') { 'always visible' }
     if verbose?
