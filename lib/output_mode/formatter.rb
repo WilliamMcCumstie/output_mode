@@ -43,10 +43,10 @@ module OutputMode
       build(*objects, **opts).render
     end
 
-    def initialize(*objects, verbose: nil, ascii: nil, interactive: nil, color: nil)
+    def initialize(*objects, verbose: nil, ascii: nil, humanize: nil, color: nil)
       @verbose = verbose
       @ascii = ascii
-      @interactive = interactive
+      @humanize = humanize
       @color = color
 
       # NOTE: This is intentionally not exposed on the base class
@@ -89,16 +89,16 @@ module OutputMode
       build_output.render(*@objects)
     end
 
-    def interactive?
-      if @interactive.nil?
+    def humanize?
+      if @humanize.nil?
         $stdout.tty?
       else
-        @interactive
+        @humanize
       end
     end
 
     def color?
-      if @color.nil? && (ascii? || !interactive?)
+      if @color.nil? && (ascii? || !humanize?)
         false
       elsif @color.nil?
         TTY::Color.color?
@@ -109,7 +109,7 @@ module OutputMode
 
     def ascii?
       if @ascii.nil?
-        !interactive?
+        !humanize?
       else
         @ascii
       end
@@ -117,7 +117,7 @@ module OutputMode
 
     def verbose?
       if @verbose.nil?
-        !interactive?
+        !humanize?
       else
         @verbose
       end
@@ -135,7 +135,7 @@ module OutputMode
 
     def default(value = nil)
       @default = value unless value.nil?
-      @default ? @default : (interactive? ? '(none)' : '')
+      @default ? @default : (humanize? ? '(none)' : '')
     end
 
     def time(value = nil)

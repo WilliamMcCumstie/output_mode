@@ -38,10 +38,10 @@ class DemoIndex < OutputMode::Formatters::Index
     else
       register(header: 'Simplified') { 'simplified visible' }
     end
-    if interactive?
-      register(header: 'Interactive') { 'interactive visible' }
+    if humanize?
+      register(header: 'humanize') { 'humanize visible' }
     else
-      register(header: 'Non Interactive') { 'non-interactive visible' }
+      register(header: 'Non humanize') { 'non-humanize visible' }
     end
     register(header: 'Yes/True') { true }
     register(header: 'No/False', row_color: [:clear]) { false }
@@ -58,10 +58,10 @@ class DemoShow < OutputMode::Formatters::Show
     else
       register(header: 'Simplified') { 'simplified visible' }
     end
-    if interactive?
-      register(header: 'Interactive') { 'interactive visible' }
+    if humanize?
+      register(header: 'humanize') { 'humanize visible' }
     else
-      register(header: 'Non Interactive') { 'non-interactive visible' }
+      register(header: 'Non humanize') { 'non-humanize visible' }
     end
     register(header: 'Yes/True', section: :boolean) { true }
     register(header: 'No/False', section: :boolean) { false }
@@ -82,7 +82,7 @@ puts <<~EOF
 
 #==============================================================================
 # Default Demo Index
-# Simplified in interactive shells, verbose in non-interactive
+# Simplified in humanize shells, verbose in non-humanize
 #==============================================================================
 #{DemoIndex.render(*data)}
 
@@ -97,16 +97,16 @@ puts <<~EOF
 #{DemoIndex.render(*data, verbose: false)}
 
 #==============================================================================
-# Force Interactive
-# Always print as if the shell is interactive
+# Force humanize
+# Always print as if the shell is humanize
 #==============================================================================
-#{DemoIndex.render(*data, interactive: true)}
+#{DemoIndex.render(*data, humanize: true)}
 
 #==============================================================================
-# Force Non-Interactive
-# Always print as if the shell is non-interactive
+# Force Non-humanize
+# Always print as if the shell is non-humanize
 #==============================================================================
-#{DemoIndex.render(*data, interactive: false)}
+#{DemoIndex.render(*data, humanize: false)}
 
 #==============================================================================
 # Demo ASCII Index
@@ -121,7 +121,7 @@ puts <<~EOF
 
 #==============================================================================
 # Default Settings
-# Simplified in interactive shells, verbose in non-interactive
+# Simplified in humanize shells, verbose in non-humanize
 #==============================================================================
 #{DemoShow.render(data.first)}
 
@@ -136,16 +136,16 @@ puts <<~EOF
 #{DemoShow.render(data.first, verbose: false)}
 
 #==============================================================================
-# Force Interactive
-# Always print as if the shell is interactive
+# Force humanize
+# Always print as if the shell is humanize
 #==============================================================================
-#{DemoShow.render(data.first, interactive: true)}
+#{DemoShow.render(data.first, humanize: true)}
 
 #==============================================================================
-# Force Non-Interactive
-# Always print as if the shell is non-interactive
+# Force Non-humanize
+# Always print as if the shell is non-humanize
 #==============================================================================
-#{DemoShow.render(data.first, interactive: false)}
+#{DemoShow.render(data.first, humanize: false)}
 
 #==============================================================================
 # Demo ASCII Index

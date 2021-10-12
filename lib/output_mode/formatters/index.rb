@@ -40,7 +40,7 @@ module OutputMode
       end
 
       def build_output
-        if interactive?
+        if humanize?
           opts = {
             renderer: ascii? ? :ascii : :unicode,
             header_color: header_color,

@@ -29,19 +29,19 @@ require 'stringio'
 
 RSpec.describe OutputMode::Formatter do
   [true, false, nil].repeated_permutation(4).each do |bools|
-    interactive = bools[0]
+    humanize = bools[0]
     ascii = bools[1]
     verbose = bools[2]
     color = bools[3]
 
-    interactive_str = interactive.nil? ? 'nil' : interactive.to_s
+    humanize_str = humanize.nil? ? 'nil' : humanize.to_s
     ascii_str = ascii.nil? ? 'nil' : ascii.to_s
     verbose_str = verbose.nil? ? 'nil' : verbose.to_s
     color_str = color.nil? ? 'nil' : color.to_s
 
-    msg = "when interactive is #{interactive_str}, ascii is #{ascii_str}, verbose is #{verbose_str}, and color is #{color_str}"
+    msg = "when humanize is #{humanize_str}, ascii is #{ascii_str}, verbose is #{verbose_str}, and color is #{color_str}"
     context(msg) do
-      subject { described_class.new(interactive: interactive, verbose: verbose, ascii: ascii, color: color) }
+      subject { described_class.new(humanize: humanize, verbose: verbose, ascii: ascii, color: color) }
       let(:stdout) { nil }
 
       # Allow stdout to be reset
@@ -55,20 +55,20 @@ RSpec.describe OutputMode::Formatter do
       end
 
       # Generic accessor tests
-      it { is_expected.send(interactive ? :to : :not_to, be_interactive) } unless interactive.nil?
+      it { is_expected.send(humanize ? :to : :not_to, be_humanize) } unless humanize.nil?
       it { is_expected.send(ascii ? :to : :not_to, be_ascii) } unless ascii.nil?
       it { is_expected.send(verbose ? :to : :not_to, be_verbose) } unless verbose.nil?
       it { is_expected.send(color ? :to : :not_to, be_color) } unless color.nil?
 
       # Test the interaction of the color setting
-      case interactive
+      case humanize
       when NilClass
         context 'when stdout is a tty' do
           let(:stdout) do
             StringIO.new.tap { |io| allow(io).to receive(:tty?).and_return(true) }
           end
 
-          it { should be_interactive }
+          it { should be_humanize }
           it { should_not be_ascii } if ascii.nil?
           it { should_not be_verbose } if verbose.nil?
         end
@@ -78,7 +78,7 @@ RSpec.describe OutputMode::Formatter do
             StringIO.new.tap { |io| allow(io).to receive(:tty?).and_return(false) }
           end
 
-          it { should_not be_interactive }
+          it { should_not be_humanize }
           it { should be_ascii } if ascii.nil?
           it { should be_verbose } if verbose.nil?
         end
@@ -90,8 +90,8 @@ RSpec.describe OutputMode::Formatter do
         it { should be_verbose } if verbose.nil?
       end
 
-      # Test the interaction between ascii/interactive and color
-      if (ascii || interactive == false) && color.nil?
+      # Test the interaction between ascii/humanize and color
+      if (ascii || humanize == false) && color.nil?
         it { should_not be_color }
       elsif color.nil?
         context 'when TTY::Color responds true to color?' do
@@ -192,8 +192,8 @@ RSpec.describe OutputMode::Formatter do
     end
   end
 
-  context 'with an interactive ascii formatter' do
-    subject { described_class.new(interactive: true, ascii: true) }
+  context 'with an humanize ascii formatter' do
+    subject { described_class.new(humanize: true, ascii: true) }
 
     describe '#yes' do
       it "should equal yes" do
@@ -229,8 +229,8 @@ RSpec.describe OutputMode::Formatter do
     end
   end
 
-  context 'with an interactive non-ascii formatter' do
-    subject { described_class.new(interactive: true, ascii: false) }
+  context 'with an humanize non-ascii formatter' do
+    subject { described_class.new(humanize: true, ascii: false) }
 
     describe '#yes' do
       it "should equal ✓" do
@@ -251,8 +251,8 @@ RSpec.describe OutputMode::Formatter do
     end
   end
 
-  context 'with an non-interactive formatter' do
-    subject { described_class.new(interactive: false) }
+  context 'with an non-humanize formatter' do
+    subject { described_class.new(humanize: false) }
 
     describe '#yes' do
       it "should equal yes" do

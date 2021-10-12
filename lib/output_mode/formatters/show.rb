@@ -43,7 +43,7 @@ module OutputMode
 
       def template(value = nil)
         @template = value unless value.nil?
-        @template ? @template : (interactive? ? DEFAULT_ERB : NON_INTERACTIVE_ERB)
+        @template ? @template : (humanize? ? DEFAULT_ERB : NON_INTERACTIVE_ERB)
       end
 
       def scope(value = nil)
